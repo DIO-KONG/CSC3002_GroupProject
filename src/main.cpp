@@ -1,21 +1,19 @@
-#include <SFML/Graphics.hpp>
+#include "engine/MainLoop.hpp"
+#include "engine/Window.hpp"
+#include "loader/ConfigLoader.hpp"
 
 int main()
 {
-    auto window = sf::RenderWindow(sf::VideoMode({1920u, 1080u}), "CMake SFML Project");
-    window.setFramerateLimit(144);
+    // Load configuration
+    loader::ConfigLoader configLoader;
+    auto config = configLoader.loadConfig("config/engine.ini");
 
-    while (window.isOpen())
-    {
-        while (const std::optional event = window.pollEvent())
-        {
-            if (event->is<sf::Event::Closed>())
-            {
-                window.close();
-            }
-        }
+    // Create window
+    Window window(unzip(config.windowConfig));
 
-        window.clear();
-        window.display();
-    }
+    // Start main loop
+    MainLoop mainLoop(window, config);
+    mainLoop.run();
+
+    return 0;
 }
