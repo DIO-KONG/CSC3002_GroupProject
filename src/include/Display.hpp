@@ -1,18 +1,18 @@
 #pragma once
-#include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include "ConfigLoader.hpp"
 // #include ""
 
-class Window
+class Display
 {
     public:
-        Window();
-        ~Window();
+        Display();
+        ~Display();
         void display();
         void update();
         void clear();
-    private:
         sf::RenderWindow window;
+
+    private:
         ConfigLoader windowLoader;
 };

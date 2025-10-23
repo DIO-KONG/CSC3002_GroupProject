@@ -1,19 +1,14 @@
-#include "engine/MainLoop.hpp"
-#include "engine/Window.hpp"
-#include "loader/ConfigLoader.hpp"
+// #include "engine/MainLoop.hpp"
+#include "Display.hpp"
+// #include "loader/ConfigLoader.hpp"
+Display display;
 
 int main()
 {
-    // Load configuration
-    loader::ConfigLoader configLoader;
-    auto config = configLoader.loadConfig("config/engine.ini");
-
-    // Create window
-    Window window(unzip(config.windowConfig));
-
-    // Start main loop
-    MainLoop mainLoop(window, config);
-    mainLoop.run();
-
-    return 0;
+    while (display.window.isOpen())
+    {
+        display.update();
+        display.clear();
+        display.display();
+    }
 }

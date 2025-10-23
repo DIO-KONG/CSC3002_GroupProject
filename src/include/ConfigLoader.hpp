@@ -17,7 +17,11 @@ class ConfigLoader
         void loadConfig(const std::string& filepath, const std::string& section);
         // 根据键获取配置值
         ConfigValue getValue(const std::string& key) const;
+        // 设置基础目录
+        void setBaseDir(const std::string& dir);
+        
     private:
         // 存储配置数据的字典
         ConfigDict configData;
+        std::string basedir = "";
 };

@@ -11,6 +11,14 @@ ConfigLoader::~ConfigLoader()
     // ConfigLoader类析构函数实现
 }
 
+void ConfigLoader::setBaseDir(const std::string& dir)
+{
+    // 设置基础目录的实现
+    this->basedir = dir;
+    printf("Base directory set to: %s\n", this->basedir.c_str());
+    return;
+}
+
 void ConfigLoader::loadConfig(const std::string& filepath, const std::string& section)
 {
     // ConfigLoader类加载配置文件实现
@@ -116,8 +124,8 @@ void ConfigLoader::loadConfig(const std::string& filepath, const std::string& se
             configData[key] = value;
         }
     }
-
     file.close();
+    return;
 }
 
 ConfigValue ConfigLoader::getValue(const std::string& key) const

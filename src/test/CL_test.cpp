@@ -7,14 +7,14 @@ std::string configPath = basedir + "config\\engine.ini";
 int main()
 {
     ConfigLoader configLoader;
-
+    configLoader.setBaseDir(basedir);
     configLoader.loadConfig(configPath, "Display");
 
     printf("Configuration loaded from %s\n", configPath.c_str());
 
     printf("Display Width: %d\n", std::get<int>(configLoader.getValue("DisplayWidth")));
     printf("Display Height: %d\n", std::get<int>(configLoader.getValue("DisplayHeight")));
-    printf("Fullscreen: %s\n", std::get<bool>(configLoader.getValue("FullScreen")) ? "true" : "false");
+    // printf("Fullscreen: %s\n", std::get<bool>(configLoader.getValue("FullScreen")) ? "true" : "false");
     // auto fullscreenValue = configLoader.getValue("FullScreen");
     // if (std::holds_alternative<bool>(fullscreenValue)) {
     //     bool isFullscreen = std::get<bool>(fullscreenValue);
