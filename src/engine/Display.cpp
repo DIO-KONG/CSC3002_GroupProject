@@ -17,6 +17,11 @@ Display::Display()
 Display::~Display()
 {
     // Display类的析构函数实现
+    // 确保窗口正确关闭
+    if (window.isOpen()) {
+        window.close();
+    }
+    // sf::RenderWindow会自动处理资源释放
 }
 
 void Display::display()

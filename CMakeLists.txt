@@ -29,6 +29,14 @@ add_library(ConfigLib
 )
 target_include_directories(ConfigLib PUBLIC src/include)
 
+add_library(EnventSysLib
+    src/engine/EventSys.cpp
+)
+target_include_directories(EnventSysLib PUBLIC src/include)
+target_link_libraries(EnventSysLib PUBLIC 
+SFML::System
+)
+
 add_library(DisplayLib
     src/engine/Display.cpp
 )
@@ -42,6 +50,7 @@ add_executable(game src/main.cpp)
 target_compile_features(game PRIVATE cxx_std_17)
 target_link_libraries(game PRIVATE
 DisplayLib
+EnventSysLib
 SFML::Graphics
 SFML::Audio
 SFML::Window
