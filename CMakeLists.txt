@@ -1,3 +1,9 @@
+# 在 CMakeLists.txt 开头添加
+if(MSVC)
+    # 确保 Visual Studio 使用正确的输出目录
+    set(CMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD 1)
+endif()
+
 cmake_minimum_required(VERSION 3.28)
 project(CSC3002_GroupProject)
 
