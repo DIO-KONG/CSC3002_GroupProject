@@ -12,8 +12,9 @@ void Scene::init(std::string sceneConfigPath,
     ResourceLoader loader(sceneConfigPath);
     // 初始化Box2D物理世界
     worldDef = b2DefaultWorldDef();
-    worldDef.gravity = (b2Vec2){std::get<float>(loader.getResource("gravityX")),
-                                std::get<float>(loader.getResource("gravityY"))};
+    float gravityX = std::get<float>(loader.getResource("gravityX"));
+    float gravityY = std::get<float>(loader.getResource("gravityY"));
+    worldDef.gravity = {gravityX, gravityY};
     world = b2CreateWorld(&worldDef);
     // 设定容器键
     std::vector<std::string> objKeys = loader.getObjKeys();
