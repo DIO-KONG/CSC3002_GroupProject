@@ -2,6 +2,8 @@
 if(MSVC)
     # 确保 Visual Studio 使用正确的输出目录
     set(CMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD 1)
+    # 自动导出所有符号，适用于 Windows 动态库
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
 
 cmake_minimum_required(VERSION 3.28)
@@ -56,8 +58,6 @@ add_library(ConfigLib
     src/loader/ConfigLoader.cpp
 )
 target_include_directories(ConfigLib PUBLIC src/include)
-# 添加导出定义
-target_compile_definitions(ConfigLib PRIVATE CONFIGLIB_EXPORTS)
 
 # 定义资源加载器库
 add_library(ResourceLib
