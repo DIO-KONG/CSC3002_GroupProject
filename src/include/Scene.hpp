@@ -2,7 +2,8 @@
 #include "GameObj.hpp"
 #include "EventSys.hpp"
 #include "ResourceLoader.hpp"
-#include <box2d/box2d.h>    
+#include "GameInput.hpp"
+#include <box2d/box2d.h>
 #include <memory>
 #include <vector>
 #include <variant>

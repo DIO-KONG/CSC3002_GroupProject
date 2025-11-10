@@ -1,5 +1,4 @@
 #pragma once
-#include "GameObj.hpp"
 #include <unordered_map>
 #include <variant>
 #include <string>

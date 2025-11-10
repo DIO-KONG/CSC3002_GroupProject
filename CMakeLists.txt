@@ -84,6 +84,8 @@ add_library(GameObjLib
 target_include_directories(GameObjLib PUBLIC src/include)
 target_link_libraries(GameObjLib PUBLIC
     EventSysLib
+    ResourceLib
+    GameInputLib
     box2d::box2d
     SFML::Graphics
     SFML::Audio
@@ -98,6 +100,7 @@ target_link_libraries(GameSceneLib PUBLIC
     GameObjLib
     ResourceLib
     EventSysLib
+    GameInputLib
     box2d::box2d
 )
 
