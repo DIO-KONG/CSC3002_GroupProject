@@ -1,4 +1,16 @@
 #pragma once
+
+// 针对MSVC编译器的DLL导出宏定义
+#ifdef _WIN32
+    #ifdef CONFIGLIB_EXPORTS
+        #define CONFIGLIB_API __declspec(dllexport)
+    #else
+        #define CONFIGLIB_API __declspec(dllimport)
+    #endif
+#else
+    #define CONFIGLIB_API
+#endif
+
 #include <unordered_map>
 #include <variant>
 #include <string>

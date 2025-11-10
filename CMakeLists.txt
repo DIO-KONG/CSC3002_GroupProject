@@ -56,6 +56,8 @@ add_library(ConfigLib
     src/loader/ConfigLoader.cpp
 )
 target_include_directories(ConfigLib PUBLIC src/include)
+# 添加导出定义
+target_compile_definitions(ConfigLib PRIVATE CONFIGLIB_EXPORTS)
 
 # 定义资源加载器库
 add_library(ResourceLib
