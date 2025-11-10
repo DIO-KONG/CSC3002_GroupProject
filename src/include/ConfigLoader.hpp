@@ -3,13 +3,14 @@
 #include <variant>
 #include <string>
 #include <fstream>
-// 使用std::variant来存储不同类型的配置值，例如屏幕分辨率int，角色名称string等
-typedef std::variant<std::monostate, bool, int, float, std::string> ConfigValue;
-// 使用std::unordered_map来存储键值对形式的配置数据
-typedef std::unordered_map<std::string, ConfigValue> ConfigDict;
 
 class ConfigLoader
 {
+    // 使用std::variant来存储不同类型的配置值，例如屏幕分辨率int，角色名称string等
+    using ConfigValue = std::variant<std::monostate, bool, int, float, std::string>;
+    // 使用std::unordered_map来存储键值对形式的配置数据
+    using ConfigDict = std::unordered_map<std::string, ConfigValue>;
+
     public:
         ConfigLoader();
         ~ConfigLoader();
@@ -17,6 +18,8 @@ class ConfigLoader
         void loadConfig(const std::string& filepath, const std::string& section);
         // 根据键获取配置值
         ConfigValue getValue(const std::string& key) const;
+        // 获取指定节的所有键值对
+        ConfigDict getAllValues(const std::string& section) const;
         // 设置基础目录
         void setBaseDir(const std::string& dir);
         

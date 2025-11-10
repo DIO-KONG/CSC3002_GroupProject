@@ -1,0 +1,29 @@
+{
+  "name": "Forest Level",
+  "background": "forest.png", 
+  "music": "forest_theme.ogg",
+  "player_spawn_X": 100,
+  "player_spawn_Y": 200,
+  "objKeys": ["tree", "rock", "waterfall"],
+  "enemies": [
+    {
+      "type": "goblin",
+      "health": 50,
+      "x": 300,
+      "y": 400
+    },
+    {
+      "type": "orc", 
+      "health": 100,
+      "x": 500,
+      "y": 400
+    }
+  ],
+  "items": [
+    {
+      "type": "health_potion",
+      "x": 250,
+      "y": 350
+    }
+  ]
+}

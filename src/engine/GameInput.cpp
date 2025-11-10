@@ -24,32 +24,54 @@ void GameInputRead::update()
     for (const sf::Keyboard::Key& key : Keys)
     {
         bool isPressed = sf::Keyboard::isKeyPressed(key);
-        KeyState& state = keyStates[key];
+        KeyState& state = GameInputRead::keyStates[key];
 
         if (isPressed)
         {
-            if (state == KEY_RELEASED)
+            if (state == GameInputRead::KEY_RELEASED)
             {
-                state = KEY_PRESSED; // 刚按下
+                state = GameInputRead::KEY_PRESSED; // 刚按下
             }
             else
             {
-                state = KEY_HELD; // 持续按下
+                state = GameInputRead::KEY_HELD; // 持续按下
             }
         }
         else
         {
-            state = KEY_RELEASED; // 未按下
+            state = GameInputRead::KEY_RELEASED; // 未按下
         }
+    }
+    // 更新鼠标位置
+    mousePositionGlobal = sf::Mouse::getPosition();
+    if (window)
+    {
+        mousePositionRelative = sf::Mouse::getPosition(*window);
     }
 }
 
-KeyState GameInputRead::getKeyState(const sf::Keyboard::Key key)
+GameInputRead::KeyState GameInputRead::getKeyState(const sf::Keyboard::Key key)
 {
     // 获取指定按键的状态
     if (keyStates.find(key) != keyStates.end())
     {
         return keyStates[key];
     }
-    return KEY_RELEASED; // 默认返回未按下状态
+    return GameInputRead::KEY_RELEASED; // 默认返回未按下状态
+}
+
+void GameInputRead::setWindow(sf::RenderWindow* win)
+{
+    // 设置窗口引用
+    window = win;
+}
+
+sf::Vector2i GameInputRead::getMousePosition(bool relativeToWindow)
+{
+    // 获取鼠标位置 参数relativeToWindow表示是否相对于窗口坐标
+    if (relativeToWindow && window)
+    {
+        return mousePositionRelative;
+    }
+    return mousePositionGlobal;
 }

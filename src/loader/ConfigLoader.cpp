@@ -21,6 +21,7 @@ void ConfigLoader::setBaseDir(const std::string& dir)
 
 void ConfigLoader::loadConfig(const std::string& filepath, const std::string& section)
 {
+    configData.clear();
     // ConfigLoader类加载配置文件实现
     // 读取配置文件并解析指定节的内容
     std::ifstream file(filepath);
@@ -128,11 +129,18 @@ void ConfigLoader::loadConfig(const std::string& filepath, const std::string& se
     return;
 }
 
-ConfigValue ConfigLoader::getValue(const std::string& key) const
+ConfigLoader::ConfigValue ConfigLoader::getValue(const std::string& key) const
 {
     // ConfigLoader类根据键获取配置值的实现
     if (auto it = configData.find(key); it != configData.end()) {
         return it->second;
     }
     return std::monostate{}; // 返回空值表示未找到
+}
+
+ConfigLoader::ConfigDict ConfigLoader::getAllValues(const std::string& section) const
+{
+    // ConfigLoader类获取指定节的所有键值对的实现
+    // 由于当前实现中configData只存储了一个节的数据，因此直接返回configData
+    return configData;
 }
