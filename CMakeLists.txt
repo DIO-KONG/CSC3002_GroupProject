@@ -167,12 +167,12 @@ target_link_libraries(game PRIVATE
 #     ${CMAKE_CURRENT_SOURCE_DIR}/src/loader
 # )
 
-# 测试 ResourceLoader
-add_executable(RL_test src/test/RL_test.cpp src/loader/ResourceLoader.cpp)
-target_compile_features(RL_test PRIVATE cxx_std_17)
-target_link_libraries(RL_test PRIVATE
-    ResourceLib
-)
+# # 测试 ResourceLoader
+# add_executable(RL_test src/test/RL_test.cpp src/loader/ResourceLoader.cpp)
+# target_compile_features(RL_test PRIVATE cxx_std_17)
+# target_link_libraries(RL_test PRIVATE
+#     ResourceLib
+# )
 
 # # 测试按键读取
 # add_executable(KeyRead_test src/test/KeyRead_test.cpp)
@@ -180,4 +180,13 @@ target_link_libraries(RL_test PRIVATE
 # target_link_libraries(KeyRead_test PRIVATE
 #     GameInputLib
 #     SFML::Graphics
+# )
+
+
+# # 测试事件系统
+# add_executable(EventSys_test src/test/EventSys_test.cpp)
+# target_compile_features(EventSys_test PRIVATE cxx_std_17)
+# target_include_directories(EventSys_test PUBLIC src/include)
+# target_link_libraries(EventSys_test PRIVATE
+#     EventSysLib
 # )
