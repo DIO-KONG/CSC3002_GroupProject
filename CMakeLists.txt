@@ -1,5 +1,6 @@
 # 在 CMakeLists.txt 开头添加
 if(MSVC)
+    add_compile_options(/utf-8)
     # 确保 Visual Studio 使用正确的输出目录
     set(CMAKE_VS_INCLUDE_INSTALL_TO_DEFAULT_BUILD 1)
     # 自动导出所有符号，适用于 Windows 动态库
