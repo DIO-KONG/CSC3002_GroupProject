@@ -19,7 +19,7 @@ public:
     // initialize可能需要的参数：EventSys指针、RenderWindow指针、Box2D世界指针、资源加载器返回的资源字典等
     virtual void initialize() = 0;
     // update可能需要的参数：deltaTime、输入状态等
-    virtual void update()= 0;
+    virtual void update();
     virtual void draw();
     virtual void regImmEvent(const EventSys::ImmEventPriority priority, const EventSys::EventFunc& func);
     virtual void regTimedEvent(const sf::Time delay, const EventSys::EventFunc& func);
