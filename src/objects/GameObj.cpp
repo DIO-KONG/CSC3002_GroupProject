@@ -207,7 +207,8 @@ void Block::initialize(const ResourceLoader::ResourceDict& objConfig) {
     float width = std::get<float>(objConfig.at("width"));
     float height = std::get<float>(objConfig.at("height"));
     b2BodyDef groundBodyDef = b2DefaultBodyDef();
-    groundBodyDef.position = (b2Vec2){posX+width/2, posY+height/2}; // Box2D坐标系中心点
+    b2Vec2 Bodyposition = {posX+width/2, posY+height/2};
+    groundBodyDef.position = Bodyposition; // Box2D坐标系中心点
     groundBodyDef.type = b2_staticBody; // 静态物体
     // 创建Box2D实体和形状
     groundId = b2CreateBody(*worldPtr->lock(), &groundBodyDef);
