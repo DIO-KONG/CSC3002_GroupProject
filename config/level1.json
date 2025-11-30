@@ -1,0 +1,26 @@
+{
+    "name": "Level 1",
+    "background": "level1_background.png",
+    "music": "level1_theme.mp3",
+    "gravityX": 0,
+    "gravityY": 9.8,
+    "objKeys": ["Block", "Enemy"],
+    "Block": [
+        {
+            "type": "platform",
+            "x": 100,
+            "y": 500,
+            "width": 300,
+            "height": 50,
+            "texture": "platform_texture.png"
+        },
+        {
+            "type": "wall",
+            "x": 500,
+            "y": 400,
+            "width": 50,
+            "height": 200,
+            "texture": "wall_texture.png"
+        }
+    ]
+}

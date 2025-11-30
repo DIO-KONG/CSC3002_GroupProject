@@ -8,9 +8,12 @@ BaseObj::~BaseObj(){
     // 析构函数
 }
 
+void BaseObj::initialize() {
+    // 默认初始化行为，可以在派生类中重写
+}
+
 void BaseObj::update() {
     // 默认更新行为，可以在派生类中重写
-    // 这里可以添加一些通用的更新逻辑
 }
 
 void BaseObj::draw() {
@@ -59,3 +62,26 @@ void BaseObj::regTimedEvent(const sf::Time delay, const EventSys::EventFunc& fun
         eventSys->regTimedEvent(delay, func);
     }
 }
+
+// -------------------------------- Block类实现 --------------------------------
+
+// Block::Block() : BaseObj() {
+//     // 构造函数
+// }
+
+// Block::~Block() {
+//     // 析构函数
+// }
+
+// void Block::initialize() {
+//     // 初始化方块对象
+//     // 设置特征，例如支持绘制
+//     features["drawable"] = true;
+
+//     // 加载纹理和设置Sprite等初始化操作
+//     texture = sf::Texture();
+//     if (texture->loadFromFile("path_to_block_texture.png")) {
+//         sprite = sf::Sprite();
+//         sprite->setTexture(texture.value());
+//     }
+// }

@@ -8,6 +8,7 @@ void Scene::init(std::string sceneConfigPath,
     eventSysPtr = eventSys;
     windowPtr = window;
     inputPtr = input;
+    this->configPath = sceneConfigPath;
     // 加载场景配置
     ResourceLoader loader(sceneConfigPath);
     // 初始化Box2D物理世界
@@ -19,17 +20,27 @@ void Scene::init(std::string sceneConfigPath,
     // 设定容器键
     std::vector<std::string> objKeys = loader.getObjKeys();
     for (const std::string& key : objKeys) {
-        // 根据配置创建游戏对象并添加到sceneAssets
+        // 遍历每一种对象类型
         loader.addObjKey(key);
         int objCount = loader.getObjCount(key);
         for (int i = 0; i < objCount; ++i) {
-            // 这里需要根据实际的GameObj子类进行扩展
-            // 示例: 创建一个简单的GameObj并添加到sceneAssets
-            // sceneAssets.push_back(std::make_unique<GameObj>(...));
-            // // 初始化游戏对象
-            // sceneAssets.back()->init(loader.getAllObjResources(i, key));
+            // 遍历每个对象并添加到场景
+            addObject(loader.getAllObjResources(i, key));
         }
     }
+}
+
+void Scene::reload() {
+    // 清空对象列表
+    sceneAssets.clear();
+    // 重新加载场景配置
+    ResourceLoader loader(configPath);
+    // 重载Box2D物理世界
+    worldDef = b2DefaultWorldDef();
+    float gravityX = std::get<float>(loader.getResource("gravityX"));
+    float gravityY = std::get<float>(loader.getResource("gravityY"));
+    worldDef.gravity = {gravityX, gravityY};
+    world = b2CreateWorld(&worldDef);
 }
 
 void Scene::update(const float deltaTime, const int subStepCount) {
@@ -70,4 +81,9 @@ void Scene::regTimedEvent(const sf::Time delay, const EventSys::EventFunc& func)
     if (auto eventSys = eventSysPtr.lock()) {
         eventSys->regTimedEvent(delay, func);
     }
+}
+
+void Scene::addObject(const ResourceLoader::ResourceDict& objConfig) {
+    // 根据objConfig创建游戏对象并添加到sceneAssets
+    // 分支逻辑根据objConfig中的类型信息决定创建哪种GameObj子类
 }

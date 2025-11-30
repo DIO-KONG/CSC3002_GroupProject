@@ -54,6 +54,7 @@ class EventSys
         void executeImmEvents();
         // 执行定时事件
         void executeTimedEvents();
+        // 获取事件系统运行时间 （游戏基准时钟）
         sf::Time getElapsedTime() const;
 
     private:

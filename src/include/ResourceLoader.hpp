@@ -10,10 +10,10 @@ using json = nlohmann::json;
 
 class ResourceLoader
 {
-    using ResourceValue = std::variant<std::monostate, bool, int, float, std::string>;
-    using ResourceDict = std::unordered_map<std::string, ResourceValue>;
-
     public:
+        using ResourceValue = std::variant<std::monostate, bool, int, float, std::string>;
+        using ResourceDict = std::unordered_map<std::string, ResourceValue>;
+        
         ResourceLoader(const std::string& jsonFilePath);
         ~ResourceLoader();
         // 根据键获取资源值

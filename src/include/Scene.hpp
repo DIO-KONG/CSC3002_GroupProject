@@ -10,7 +10,6 @@
 
 class Scene
 {   
-    using GameObjs = std::variant<std::monostate/*待添加后续的GameObj子类（最好用unique_ptr）*/>;
     public:
         Scene() = default;
         ~Scene() = default;
@@ -20,6 +19,8 @@ class Scene
                           std::weak_ptr<EventSys> eventSys, 
                           std::weak_ptr<sf::RenderWindow> window,
                           std::weak_ptr<GameInputRead> input);
+        // 重载场景
+        virtual void reload();
         // 更新场景状态
         virtual void update(const float deltaTime,const int subStepCount = 4);
         // 渲染场景内容
@@ -28,10 +29,12 @@ class Scene
         virtual void regImmEvent(const EventSys::ImmEventPriority priority, const EventSys::EventFunc& func);
         // 注册定时事件
         virtual void regTimedEvent(const sf::Time delay, const EventSys::EventFunc& func);
+        // 添加对象到场景
+        void addObject(const ResourceLoader::ResourceDict& objConfig);
 
     protected:
         // 场景中的游戏对象列表
-        std::vector<GameObjs> sceneAssets;
+        std::vector<BaseObj> sceneAssets;
         // Box2D物理世界生成器
         b2WorldDef worldDef;
         // Box2D物理世界
@@ -42,4 +45,6 @@ class Scene
         std::weak_ptr<sf::RenderWindow> windowPtr;
         // GameInput指针
         std::weak_ptr<GameInputRead> inputPtr;
+        // 资源加载器路径
+        std::string configPath;
 };

@@ -1,0 +1,16 @@
+{
+    "name": "Memu",
+    "background": "memu_background.png",
+    "music": "memu_theme.mp3",
+    "objKeys": ["StartButton"],
+    "StartButton": {
+        "type": "button",
+        "x": 400,
+        "y": 300,
+        "width": 200,
+        "height": 80,
+        "texture": "start_button.png",
+        "text": "Start",
+        "sound": "button_click.mp3"
+    }
+}

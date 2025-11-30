@@ -8,59 +8,66 @@
 
 int main()
 {
-    // 创建显示窗口、事件系统和游戏输入读取器
-    Display display;
-    EventSys eventSys;
-    GameInputRead gameInput;
+    // 创建显示窗口、事件系统和游戏输入读取器（使用智能指针）
+    auto display = std::make_shared<Display>();
+    auto eventSys = std::make_shared<EventSys>();
+    auto gameInput = std::make_shared<GameInputRead>();
+    std::shared_ptr<sf::RenderWindow> windowPtr(display, &display->window);
 
     // 加载引擎配置
     float deltaTime = 0.0f;
     ConfigLoader engineLoader;
     engineLoader.loadConfig("config/engine.ini", "Engine");
     deltaTime = std::get<float>(engineLoader.getValue("DeltaTime"));
-
+    
     // 构建scene路径
-    auto paths = engineLoader.getAllValues("Path");
-
-    // 创建初始场景（例:菜单场景）
-    Scene menuScene;
-    // 将初始场景设置为当前场景
     engineLoader.loadConfig("config/engine.ini", "Path");
-    std::unique_ptr<Scene> currentScene = std::make_unique<Scene>(menuScene);
+    std::string menupth = std::get<std::string>(engineLoader.getValue("MenuPath"));
+    std::string level1pth = std::get<std::string>(engineLoader.getValue("level1Path"));
+    // 创建初始场景（例:菜单场景）
+    std::shared_ptr<Scene> menuScene = std::make_shared<Scene>();
+    // 初始化场景并设置指针
+    menuScene->init(menupth,
+                    eventSys,
+                    windowPtr,
+                    gameInput
+    );
 
-    while (display.window.isOpen())
+    // 当前场景指针
+    std::shared_ptr<Scene> currentScene = menuScene;
+
+    while (display->window.isOpen())
     {
-        // 准备下一帧
-
         // 记录帧开始时间
-        sf::Time frameStartTime = eventSys.getElapsedTime();
+        sf::Time frameStartTime = eventSys->getElapsedTime();
         
         // 处理窗口是否关闭
-        display.update();
+        display->update();
         
         // 向事件系统注册按键更新事件
         auto keyUpdateEvent = [&gameInput]() {
-            gameInput.update();
+            gameInput->update();
         };
-        eventSys.regImmEvent(EventSys::ImmEventPriority::INPUT, keyUpdateEvent);
-        
-        // 检查场景是否可用
-        if (!currentScene)
-        {
-            continue;
-        }
+        eventSys->regImmEvent(EventSys::ImmEventPriority::INPUT, keyUpdateEvent);
 
         // 场景更新（包括场景内对象更新）
         currentScene->update(deltaTime);
-
-        // 清空显示
-        display.clear();
-
         // 执行事件系统中的即时事件和定时事件
-        eventSys.executeImmEvents();
-        eventSys.executeTimedEvents();
+        eventSys->executeImmEvents();
+        eventSys->executeTimedEvents();
 
-        // 场景渲染（包括场景内对象渲染）
-        display.display();
+        // 场景渲染
+        display->clear();
+        currentScene->render();
+        display->display();
+
+        // 获取帧结束时间
+        sf::Time frameEndTime = eventSys->getElapsedTime();
+        // 等待多余时间以维持稳定帧率
+        float frameDuration = frameEndTime.asSeconds() - frameStartTime.asSeconds();
+        if (frameDuration < deltaTime)
+        {
+            sf::sleep(sf::seconds(deltaTime - frameDuration));
+        }
     }
 }

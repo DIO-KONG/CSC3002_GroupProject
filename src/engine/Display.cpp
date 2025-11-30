@@ -1,5 +1,54 @@
 #include "Display.hpp"
 #include "ConfigLoader.hpp"
+#include "GameObj.hpp"
+
+Camera::~Camera()
+{
+    // Camera类的析构函数实现
+}
+
+Camera::Camera()
+{
+    // Camera类的构造函数实现   
+}
+
+void Camera::init(sf::Vector2f center, sf::Vector2f size)
+{
+    // Camera类的初始化实现
+    view.setCenter(center);
+    view.setSize(size);
+}
+
+sf::View& Camera::getView()
+{
+    // 获取视图的实现
+    return view;
+}
+
+void Camera::update()
+{
+    // Camera类的更新实现
+    if (auto target = targetObj.lock())
+    {
+        // // 假设BaseObj有一个getPosition()方法返回其位置
+        // view.setCenter(target->getPosition());
+    }
+}
+
+void Camera::setCenter(sf::Vector2f center)
+{
+    view.setCenter(center);
+}
+
+void Camera::setSize(sf::Vector2f size)
+{
+    view.setSize(size);
+}
+
+void Camera::setTarget(std::weak_ptr<Player> target)
+{
+    targetObj = target;
+}
 
 Display::Display()
 {
@@ -12,6 +61,10 @@ Display::Display()
     std::string title = std::get<std::string>(windowLoader.getValue("WindowTitle"));
     window = sf::RenderWindow(sf::VideoMode({static_cast<unsigned int>(width), static_cast<unsigned int>(height)}), title);
     window.setFramerateLimit(frameLimit);
+    // 初始化相机
+    sf::Vector2f center(0.f, 0.f);
+    sf::Vector2f size(static_cast<float>(width), static_cast<float>(height));
+    camera.init(center, size);
 }
 
 Display::~Display()
@@ -40,10 +93,17 @@ void Display::update()
             window.close();
         }
     }
+    // 更新相机
+    camera.update();
 }
 
 void Display::clear()
 {
     // Display类的清除逻辑实现
     window.clear();
+}
+
+void Display::setCameraTarget(std::weak_ptr<Player> target)
+{
+    camera.setTarget(target);
 }

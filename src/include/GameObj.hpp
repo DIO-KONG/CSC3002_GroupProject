@@ -17,7 +17,7 @@ public:
     virtual ~BaseObj();
     // 纯虚函数，必须在派生类中重写
     // initialize可能需要的参数：EventSys指针、RenderWindow指针、Box2D世界指针、资源加载器返回的资源字典等
-    virtual void initialize() = 0;
+    virtual void initialize();
     // update可能需要的参数：deltaTime、输入状态等
     virtual void update();
     virtual void draw();
@@ -41,3 +41,23 @@ protected:
     // 任务系统指针 在initialize中设定
     std::weak_ptr<EventSys> eventSysPtr;
 };
+
+// // 方块对象类
+// class Block : public BaseObj{
+// public:
+//     // 方块类型枚举
+//     enum BlockType {
+//         GRASS,
+//         STONE,
+//         WATER,
+//     };
+
+//     Block();
+//     ~Block() override;
+//     void initialize() override;
+//     void update() override;
+//     void draw() override;
+
+// private:
+    
+// };
