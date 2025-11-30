@@ -96,7 +96,6 @@ add_library(DisplayLib
 target_include_directories(DisplayLib PUBLIC src/include)
 target_link_libraries(DisplayLib PUBLIC 
     ConfigLib
-    ResourceLib
     SFML::Graphics
 )
 
