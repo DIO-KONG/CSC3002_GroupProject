@@ -1,26 +1,28 @@
 {
     "name": "Level 1",
-    "background": "level1_background.png",
-    "music": "level1_theme.mp3",
-    "gravityX": 0,
+    "background": "assets/texture/level1_background.png",
+    "music": "assets/audio/level1_theme.mp3",
+    "gravityX": 0.0,
     "gravityY": 9.8,
     "objKeys": ["Block", "Enemy"],
     "Block": [
         {
-            "type": "platform",
-            "x": 100,
-            "y": 500,
-            "width": 300,
-            "height": 50,
-            "texture": "platform_texture.png"
+            "type": "GRASS",
+            "health": 100000.0,
+            "x": 100.0,
+            "y": 500.0,
+            "width": 300.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass_texture.png"
         },
         {
-            "type": "wall",
-            "x": 500,
-            "y": 400,
-            "width": 50,
-            "height": 200,
-            "texture": "wall_texture.png"
+            "type": "LAVA",
+            "health": 100.0,
+            "x": 500.0,
+            "y": 400.0,
+            "width": 50.0,
+            "height": 200.0,
+            "texture": "assets/texture/lava_texture.png"
         }
     ]
 }

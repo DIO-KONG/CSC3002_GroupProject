@@ -20,6 +20,7 @@ public:
     virtual void initialize();
     // update可能需要的参数：deltaTime、输入状态等
     virtual void update();
+    virtual void update(const float deltaTime);
     virtual void draw();
     virtual void regImmEvent(const EventSys::ImmEventPriority priority, const EventSys::EventFunc& func);
     virtual void regTimedEvent(const sf::Time delay, const EventSys::EventFunc& func);
@@ -42,22 +43,33 @@ protected:
     std::weak_ptr<EventSys> eventSysPtr;
 };
 
-// // 方块对象类
-// class Block : public BaseObj{
-// public:
-//     // 方块类型枚举
-//     enum BlockType {
-//         GRASS,
-//         STONE,
-//         WATER,
-//     };
+// 方块对象类
+class Block : public BaseObj{
+public:
+    // 方块类型枚举
+    enum BlockType {
+        GRASS,
+        WATER,
+        ICE,
+        LAVA
+    };
 
-//     Block();
-//     ~Block() override;
-//     void initialize() override;
-//     void update() override;
-//     void draw() override;
+    Block();
+    ~Block() override;
+    // 重写基类方法，通过Scene的addObject调用
+    void initialize(const ResourceLoader::ResourceDict& objConfig);
+    // 设置核心指针（方块类不需要输入）
+    void setPtrs(const std::weak_ptr<EventSys>& eventSys,
+                 const std::weak_ptr<sf::RenderWindow>& window,
+                 const std::weak_ptr<b2WorldId>& world);
+    void update() override;
+    // void draw() override;
+    void onhit(float damage);
+    void onkill();
 
-// private:
-    
-// };
+private:
+    // 方块的生命值 可以设置极高表示不可破坏
+    float health;
+    // 方块类型
+    BlockType blockType;
+};

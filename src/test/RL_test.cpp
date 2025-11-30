@@ -3,15 +3,18 @@
 
 int main()
 {
-    ResourceLoader TestLoader("config\\flat_example.json");
-    std::printf("关卡名字是: %s\n", std::get<std::string>(TestLoader.getResource("name")).c_str());
-    std::printf("关卡背景图路径是: %s\n", std::get<std::string>(TestLoader.getResource("background")).c_str());
-    TestLoader.addObjKey("enemies");
-    std::printf("敌人数量是: %d\n", TestLoader.getObjCount("enemies"));
-    for (int i = 0; i < TestLoader.getObjCount("enemies"); ++i)
-    {
-        std::printf("敌人 %d 的类型是: %s\n", i, std::get<std::string>(TestLoader.getObjResources(i, "enemies", "type")).c_str());
-        std::printf("敌人 %d 的生命值是: %d\n", i, std::get<int>(TestLoader.getObjResources(i, "enemies", "health")));
+    ResourceLoader TestLoader("config\\menu.json");
+    std::string name = std::get<std::string>(TestLoader.getResource("name"));
+    std::cout << "Loaded resource name: " << name << std::endl;
+    std::vector<std::string> objKeys = TestLoader.getObjKeys();
+    for (const std::string& key : objKeys) {
+        printf("Object Key: %s\n", key.c_str());
+        int objCount = TestLoader.getObjCount(key);
+        printf("Object Count: %d\n", objCount);
     }
-    std::printf("测试完成！\n");
+    float gravityX = std::get<float>(TestLoader.getResource("gravityX"));
+    printf("Gravity X: %.2f\n", gravityX);
+    float gravityY = std::get<float>(TestLoader.getResource("gravityY"));
+    printf("Gravity Y: %.2f\n", gravityY);
+    return 0;
 }

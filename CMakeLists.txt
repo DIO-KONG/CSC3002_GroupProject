@@ -168,12 +168,12 @@ target_link_libraries(game PRIVATE
 #     ${CMAKE_CURRENT_SOURCE_DIR}/src/loader
 # )
 
-# # 测试 ResourceLoader
-# add_executable(RL_test src/test/RL_test.cpp src/loader/ResourceLoader.cpp)
-# target_compile_features(RL_test PRIVATE cxx_std_17)
-# target_link_libraries(RL_test PRIVATE
-#     ResourceLib
-# )
+# 测试 ResourceLoader
+add_executable(RL_test src/test/RL_test.cpp src/loader/ResourceLoader.cpp)
+target_compile_features(RL_test PRIVATE cxx_std_17)
+target_link_libraries(RL_test PRIVATE
+    ResourceLib
+)
 
 # # 测试按键读取
 # add_executable(KeyRead_test src/test/KeyRead_test.cpp)

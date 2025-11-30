@@ -16,6 +16,11 @@ void BaseObj::update() {
     // 默认更新行为，可以在派生类中重写
 }
 
+void BaseObj::update(const float deltaTime) {
+    // 带有deltaTime参数的默认更新行为，可以在派生类中重写
+    (void)deltaTime; // 避免未使用参数的警告
+}
+
 void BaseObj::draw() {
     // 默认绘制行为，通过任务系统调度绘制事件
     // 检查类是否为可以画图的对象
@@ -65,23 +70,82 @@ void BaseObj::regTimedEvent(const sf::Time delay, const EventSys::EventFunc& fun
 
 // -------------------------------- Block类实现 --------------------------------
 
-// Block::Block() : BaseObj() {
-//     // 构造函数
-// }
+Block::Block() : BaseObj() {
+    // 构造函数
+}
 
-// Block::~Block() {
-//     // 析构函数
-// }
+Block::~Block() {
+    // 析构函数
+}
 
-// void Block::initialize() {
-//     // 初始化方块对象
-//     // 设置特征，例如支持绘制
-//     features["drawable"] = true;
+void Block::initialize(const ResourceLoader::ResourceDict& objConfig) {
+    // 初始化方块对象
+    // 设置特征，例如支持绘制
+    features["drawable"] = true;
+    features["box2d"] = true;
+    // 解析objConfig以设置方块类型和生命值
+    std::string typeStr = std::get<std::string>(objConfig.at("type"));
+    health = std::get<float>(objConfig.at("health"));
+    // 根据typeStr设置blockType
+    if (typeStr == "GRASS") {
+        blockType = GRASS;
+    }else if (typeStr == "WATER") {
+        blockType = WATER;
+    }else if (typeStr == "ICE") {
+        blockType = ICE;
+    }else if (typeStr == "LAVA") {
+        blockType = LAVA;
+    }
+    // 加载纹理和设置Sprite
+    std::string texturePath = std::get<std::string>(objConfig.at("texture"));
+    texture.emplace();
+    if (texture->loadFromFile(texturePath)) {
+        sprite.emplace(texture.value());
+    }
+    // 设置纹理位置
+    float posX = std::get<float>(objConfig.at("x"));
+    float posY = std::get<float>(objConfig.at("y"));
+    sf::Vector2f position(posX, posY);
+    if (sprite.has_value()) {
+        sprite->setPosition(position);
+    }
+    // 设置碰撞箱参数等（根据不同type）
+    float width = std::get<float>(objConfig.at("width"));
+    float height = std::get<float>(objConfig.at("height"));
+    if (blockType == GRASS) {
+        // 设置草地方块的物理属性
+        // 草方块作为固定平台（不可破坏）
+    }else if (blockType == WATER) {
+        // 设置水地方块的物理属性
+    }else if (blockType == ICE) {
+        // 设置冰地方块的物理属性
+    }else if (blockType == LAVA) {
+        // 设置熔岩地方块的物理属性
+    }
+}
 
-//     // 加载纹理和设置Sprite等初始化操作
-//     texture = sf::Texture();
-//     if (texture->loadFromFile("path_to_block_texture.png")) {
-//         sprite = sf::Sprite();
-//         sprite->setTexture(texture.value());
-//     }
-// }
+void Block::setPtrs(const std::weak_ptr<EventSys>& eventSys,
+                    const std::weak_ptr<sf::RenderWindow>& window,
+                    const std::weak_ptr<b2WorldId>& world) {
+    eventSysPtr = eventSys;
+    windowPtr.emplace(window);
+    worldPtr.emplace(world);
+}
+
+void Block::update() {
+    // 更新方块状态
+    // 例如处理与玩家的交互、动画等
+}
+
+void Block::onhit(float damage) {
+    health -= damage;
+    if (health < 0) {
+        onkill();
+        health = 0;
+    }
+}
+
+void Block::onkill() {
+    // 方块被破坏时的处理逻辑
+    // 例如播放破坏动画、移除方块等
+}

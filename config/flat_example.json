@@ -4,6 +4,7 @@
   "music": "forest_theme.ogg",
   "player_spawn_X": 100,
   "player_spawn_Y": 200,
+  "test_float": 3.14,
   "objKeys": ["tree", "rock", "waterfall"],
   "enemies": [
     {

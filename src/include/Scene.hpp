@@ -30,7 +30,7 @@ class Scene
         // 注册定时事件
         virtual void regTimedEvent(const sf::Time delay, const EventSys::EventFunc& func);
         // 添加对象到场景
-        void addObject(const ResourceLoader::ResourceDict& objConfig);
+        void addObject(const std::string type, const ResourceLoader::ResourceDict& objConfig);
 
     protected:
         // 场景中的游戏对象列表
@@ -38,7 +38,7 @@ class Scene
         // Box2D物理世界生成器
         b2WorldDef worldDef;
         // Box2D物理世界
-        std::optional<b2WorldId> world;
+        std::shared_ptr<b2WorldId> world;
         // EventSys指针
         std::weak_ptr<EventSys> eventSysPtr;
         // RenderWindow指针

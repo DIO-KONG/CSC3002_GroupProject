@@ -29,13 +29,13 @@ ResourceLoader::ResourceValue ResourceLoader::getResource(const std::string& key
         {
             return jsonValue.get<bool>();
         }
-        else if (jsonValue.is_number_integer())
-        {
-            return jsonValue.get<int>();
-        }
         else if (jsonValue.is_number_float())
         {
             return jsonValue.get<float>();
+        }
+        else if (jsonValue.is_number_integer())
+        {
+            return jsonValue.get<int>();
         }
         else if (jsonValue.is_string())
         {
@@ -102,13 +102,13 @@ ResourceLoader::ResourceValue ResourceLoader::getObjResources(
                 {
                     return jsonValue.get<bool>();
                 }
-                else if (jsonValue.is_number_integer())
-                {
-                    return jsonValue.get<int>();
-                }
                 else if (jsonValue.is_number_float())
                 {
                     return jsonValue.get<float>();
+                }
+                else if (jsonValue.is_number_integer())
+                {
+                    return jsonValue.get<int>();
                 }
                 else if (jsonValue.is_string())
                 {
@@ -140,13 +140,13 @@ ResourceLoader::ResourceDict ResourceLoader::getAllObjResources(
                 {
                     resources[key] = jsonValue.get<bool>();
                 }
-                else if (jsonValue.is_number_integer())
-                {
-                    resources[key] = jsonValue.get<int>();
-                }
                 else if (jsonValue.is_number_float())
                 {
                     resources[key] = jsonValue.get<float>();
+                }
+                else if (jsonValue.is_number_integer())
+                {
+                    resources[key] = jsonValue.get<int>();
                 }
                 else if (jsonValue.is_string())
                 {

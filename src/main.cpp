@@ -14,25 +14,33 @@ int main()
     auto gameInput = std::make_shared<GameInputRead>();
     std::shared_ptr<sf::RenderWindow> windowPtr(display, &display->window);
 
+    // Debug
+    printf("Display, EventSys, and GameInputRead created.\n");
+
     // 加载引擎配置
     float deltaTime = 0.0f;
     ConfigLoader engineLoader;
     engineLoader.loadConfig("config/engine.ini", "Engine");
     deltaTime = std::get<float>(engineLoader.getValue("DeltaTime"));
     
+    // Debug
+    printf("Engine loaded.\n");
+
     // 构建scene路径
     engineLoader.loadConfig("config/engine.ini", "Path");
     std::string menupth = std::get<std::string>(engineLoader.getValue("MenuPath"));
     std::string level1pth = std::get<std::string>(engineLoader.getValue("level1Path"));
     // 创建初始场景（例:菜单场景）
     std::shared_ptr<Scene> menuScene = std::make_shared<Scene>();
+    // Debug
+    printf("Menu Scene created.\n");
     // 初始化场景并设置指针
     menuScene->init(menupth,
                     eventSys,
                     windowPtr,
-                    gameInput
-    );
-
+                    gameInput);
+    // Debug
+    printf("Menu Scene initialized.\n");
     // 当前场景指针
     std::shared_ptr<Scene> currentScene = menuScene;
 
@@ -67,6 +75,8 @@ int main()
         float frameDuration = frameEndTime.asSeconds() - frameStartTime.asSeconds();
         if (frameDuration < deltaTime)
         {
+            // Debug
+            printf("Frame Duration: %.4f seconds\n", frameDuration);
             sf::sleep(sf::seconds(deltaTime - frameDuration));
         }
     }
