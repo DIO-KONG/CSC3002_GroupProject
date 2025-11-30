@@ -34,7 +34,7 @@ class Scene
 
     protected:
         // 场景中的游戏对象列表
-        std::vector<BaseObj> sceneAssets;
+        std::vector<std::unique_ptr<BaseObj>> sceneAssets;
         // Box2D物理世界生成器
         b2WorldDef worldDef;
         // Box2D物理世界

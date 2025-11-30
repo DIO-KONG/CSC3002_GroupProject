@@ -43,6 +43,28 @@ protected:
     std::weak_ptr<EventSys> eventSysPtr;
 };
 
+// 图形类（包括背景，按钮图形等）
+class GraphicObj : public BaseObj{
+public:
+    // 图形类型枚举
+    enum GraphicType {
+        BACKGROUND,
+        BUTTON
+    };
+    GraphicObj();
+    ~GraphicObj() override;
+    // 重写基类方法，通过Scene的addObject调用
+    void initialize(const ResourceLoader::ResourceDict& objConfig);
+    void setPtrs(const std::weak_ptr<EventSys>& eventSys,
+                 const std::weak_ptr<sf::RenderWindow>& window,
+                 const std::weak_ptr<GameInputRead>& input);
+    void update() override;
+    void draw() override;
+
+private:
+    GraphicType graphicType;
+};
+
 // 方块对象类
 class Block : public BaseObj{
 public:
@@ -72,4 +94,6 @@ private:
     float health;
     // 方块类型
     BlockType blockType;
+    // box2d
+    b2BodyId groundId;
 };

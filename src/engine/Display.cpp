@@ -28,11 +28,15 @@ sf::View& Camera::getView()
 void Camera::update()
 {
     // Camera类的更新实现
-    if (auto target = targetObj.lock())
-    {
-        // // 假设BaseObj有一个getPosition()方法返回其位置
-        // view.setCenter(target->getPosition());
-    }
+    // 先简单向右平移视图作为示例
+    view.move({10.f, 0.f});
+
+
+    // if (auto target = targetObj.lock())
+    // {
+    //     // 假设BaseObj有一个getPosition()方法返回其位置
+    //     view.setCenter(target->getPosition());
+    // }
 }
 
 void Camera::setCenter(sf::Vector2f center)
@@ -62,7 +66,7 @@ Display::Display()
     window = sf::RenderWindow(sf::VideoMode({static_cast<unsigned int>(width), static_cast<unsigned int>(height)}), title);
     window.setFramerateLimit(frameLimit);
     // 初始化相机
-    sf::Vector2f center(0.f, 0.f);
+    sf::Vector2f center(static_cast<float>(width) / 2.f, static_cast<float>(height) / 2.f);
     sf::Vector2f size(static_cast<float>(width), static_cast<float>(height));
     camera.init(center, size);
 }
@@ -95,6 +99,8 @@ void Display::update()
     }
     // 更新相机
     camera.update();
+    // 应用相机视图到窗口
+    window.setView(camera.getView());
 }
 
 void Display::clear()

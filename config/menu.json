@@ -1,0 +1,27 @@
+{
+    "name": "Memu",
+    "music": "assets/audio/memu_theme.mp3",
+    "objKeys": ["GraphicObj"],
+    "gravityX": 0.0,
+    "gravityY": 0.0,
+    "GraphicObj": [
+        {
+            "type": "BUTTON",
+            "x": 400.0,
+            "y": 300.0,
+            "width": 200.0,
+            "height": 80.0,
+            "texture": "assets/texture/start_button.png",
+            "text": "Press any key to Start",
+            "sound": "assets/audio/button_click.mp3"
+        },
+        {
+            "type": "BACKGROUND",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 800.0,
+            "height": 600.0,
+            "texture": "assets/texture/menu_background.png"
+        }
+    ]
+}

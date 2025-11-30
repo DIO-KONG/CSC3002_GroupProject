@@ -35,6 +35,7 @@ void EventSys::executeImmEvents()
         try
         {
             currentEvent.func();
+            printf("Immediate event executed. Event Type: %d\n", static_cast<int>(currentEvent.priority));
         }
         catch (const std::exception& e)
         {

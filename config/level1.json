@@ -1,28 +1,180 @@
 {
     "name": "Level 1",
-    "background": "assets/texture/level1_background.png",
-    "music": "assets/audio/level1_theme.mp3",
+    "background": "assets/texture/background.png",
+    "music": "assets/audio/theme.mp3",
     "gravityX": 0.0,
     "gravityY": 9.8,
-    "objKeys": ["Block", "Enemy"],
+    "objKeys": ["GraphicObj", "Block", "Enemy"],
+    "GraphicObj": [
+        {
+            "type": "BACKGROUND",
+            "x": 0.0,
+            "y": 0.0,
+            "texture": "assets/texture/background.png"
+        }
+    ],
     "Block": [
         {
             "type": "GRASS",
-            "health": 100000.0,
-            "x": 100.0,
+            "health": 1000000.0,
+            "x": 0.0,
             "y": 500.0,
-            "width": 300.0,
+            "width": 200.0,
             "height": 50.0,
-            "texture": "assets/texture/grass_texture.png"
+            "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 200.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 400.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 600.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 800.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
         },
         {
             "type": "LAVA",
             "health": 100.0,
-            "x": 500.0,
+            "x": 1000.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/lava.png"
+        },
+        {
+            "type": "ICE",
+            "health": 50.0,
+            "x": 1200.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/ice.png"
+        },
+        {
+            "type": "ICE",
+            "health": 50.0,
+            "x": 1400.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/ice.png"
+        },
+        {
+            "type": "LAVA",
+            "health": 100.0,
+            "x": 1600.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/lava.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 1800.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 2000.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 2300.0,
+            "y": 600.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 2600.0,
             "y": 400.0,
-            "width": 50.0,
-            "height": 200.0,
-            "texture": "assets/texture/lava_texture.png"
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 3000.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 3200.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 3400.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 3600.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 3800.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
         }
     ]
 }

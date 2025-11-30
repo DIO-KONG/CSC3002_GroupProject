@@ -31,23 +31,29 @@ int main()
     std::string menupth = std::get<std::string>(engineLoader.getValue("MenuPath"));
     std::string level1pth = std::get<std::string>(engineLoader.getValue("level1Path"));
     // 创建初始场景（例:菜单场景）
-    std::shared_ptr<Scene> menuScene = std::make_shared<Scene>();
-    // Debug
-    printf("Menu Scene created.\n");
-    // 初始化场景并设置指针
-    menuScene->init(menupth,
-                    eventSys,
-                    windowPtr,
-                    gameInput);
-    // Debug
-    printf("Menu Scene initialized.\n");
+    // std::shared_ptr<Scene> menuScene = std::make_shared<Scene>();
+    // // 初始化场景并设置指针
+    // menuScene->init(menupth,
+    //                 eventSys,
+    //                 windowPtr,
+    //                 gameInput);
+    // 创建关卡场景
+    std::shared_ptr<Scene> level1Scene = std::make_shared<Scene>();
+    level1Scene->init(level1pth,
+                      eventSys,
+                      windowPtr,
+                      gameInput);
     // 当前场景指针
-    std::shared_ptr<Scene> currentScene = menuScene;
+    std::shared_ptr<Scene> currentScene = level1Scene;
 
+    // Debug
+    printf("Entering main loop.\n");
     while (display->window.isOpen())
     {
         // 记录帧开始时间
         sf::Time frameStartTime = eventSys->getElapsedTime();
+        // 清空窗口内容
+        display->clear();
         
         // 处理窗口是否关闭
         display->update();
@@ -65,7 +71,6 @@ int main()
         eventSys->executeTimedEvents();
 
         // 场景渲染
-        display->clear();
         currentScene->render();
         display->display();
 
@@ -76,8 +81,12 @@ int main()
         if (frameDuration < deltaTime)
         {
             // Debug
-            printf("Frame Duration: %.4f seconds\n", frameDuration);
+            printf("Frame Duration: %.4f seconds. Sleep for %.4f seconds\n", frameDuration, deltaTime - frameDuration);
             sf::sleep(sf::seconds(deltaTime - frameDuration));
+        }
+        else {
+            // Debug
+            printf("Frame Duration: %.4f seconds. No sleep needed.\n", frameDuration);
         }
     }
 }

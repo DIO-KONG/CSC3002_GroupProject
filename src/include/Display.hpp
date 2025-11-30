@@ -11,7 +11,7 @@ class Camera
     public:
         Camera();
         ~Camera();
-        void init(sf::Vector2f center = {0.f, 0.f}, sf::Vector2f size = {1920.f, 1080.f});
+        void init(sf::Vector2f center = {960.f, 540.f}, sf::Vector2f size = {1920.f, 1080.f});
         // 获取视图
         sf::View& getView();
         // 更新

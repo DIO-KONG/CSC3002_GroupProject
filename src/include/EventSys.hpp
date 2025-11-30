@@ -18,7 +18,8 @@ class EventSys
             BOX2D,
             UPDATE,
             POST_UPDATE,
-            DRAW,
+            DRAWBACKGROUND,
+            DRAW
         };
         struct ImmEvent
         {
