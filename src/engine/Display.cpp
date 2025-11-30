@@ -1,6 +1,5 @@
 #include "Display.hpp"
 #include "ConfigLoader.hpp"
-#include "GameObj.hpp"
 
 Camera::~Camera()
 {
