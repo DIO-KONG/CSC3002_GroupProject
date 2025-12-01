@@ -176,5 +176,25 @@
             "height": 50.0,
             "texture": "assets/texture/grass.png"
         }
+    ],
+    "Enemy": [
+        {
+            "health": 100.0,
+            "attackDamage": 10.0,
+            "attackCooldown": 2.0,
+            "x": 3200.0,
+            "y": 500.0,
+            "width": 100.0,
+            "height": 200.0,
+            "density": 1.0,
+            "friction": 0.3,
+            "velocityX": 200.0,
+            "velocityY": 0.0,
+            "patrolAx": 3200.0,
+            "patrolAy": 500.0,
+            "patrolBx": 3800.0,
+            "patrolBy": 500.0,
+            "texture": "assets/texture/enemy.png"
+        }
     ]
 }

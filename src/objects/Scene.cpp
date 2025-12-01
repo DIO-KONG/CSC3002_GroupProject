@@ -143,5 +143,19 @@ void Scene::addObject(const std::string type, const ResourceLoader::ResourceDict
         newBlock->initialize(objConfig);
         // 添加到场景对象列表
         sceneAssets.push_back(std::move(newBlock));
+    } else if (type == "Enemy") {
+        // Debug
+        printf("Adding Enemy to Scene.\n");
+        // 创建Enemy对象
+        auto newEnemy = std::make_unique<Enemy>();
+        // 设置Enemy的核心指针
+        newEnemy->setPtrs(eventSysPtr, windowPtr, world, inputPtr);
+        // 初始化Enemy对象
+        newEnemy->initialize(objConfig);
+        // 添加到场景对象列表
+        sceneAssets.push_back(std::move(newEnemy));
+    } else {
+        // 其他类型对象的创建逻辑
+        printf("Unknown object type: %s. Object not added.\n", type.c_str());
     }
 }

@@ -19,9 +19,11 @@ int main()
 
     // 加载引擎配置
     float deltaTime = 0.0f;
+    int subStepCount = 4;
     ConfigLoader engineLoader;
     engineLoader.loadConfig("config/engine.ini", "Engine");
     deltaTime = std::get<float>(engineLoader.getValue("DeltaTime"));
+    subStepCount = std::get<int>(engineLoader.getValue("subStepCount"));
     
     // Debug
     printf("Engine loaded.\n");
@@ -65,13 +67,14 @@ int main()
         eventSys->regImmEvent(EventSys::ImmEventPriority::INPUT, keyUpdateEvent);
 
         // 场景更新（包括场景内对象更新）
-        currentScene->update(deltaTime);
+        currentScene->update(deltaTime, subStepCount);
+        // 场景渲染
+        currentScene->render();
         // 执行事件系统中的即时事件和定时事件
         eventSys->executeImmEvents();
         eventSys->executeTimedEvents();
 
-        // 场景渲染
-        currentScene->render();
+        // 显示渲染结果
         display->display();
 
         // 获取帧结束时间

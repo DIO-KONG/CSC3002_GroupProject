@@ -58,7 +58,7 @@ public:
     void setPtrs(const std::weak_ptr<EventSys>& eventSys,
                  const std::weak_ptr<sf::RenderWindow>& window,
                  const std::weak_ptr<GameInputRead>& input);
-    void update() override;
+    void update(float deltaTime) override;
     void draw() override;
 
 private:
@@ -84,7 +84,7 @@ public:
     void setPtrs(const std::weak_ptr<EventSys>& eventSys,
                  const std::weak_ptr<sf::RenderWindow>& window,
                  const std::weak_ptr<b2WorldId>& world);
-    void update() override;
+    void update(float deltaTime) override;
     // void draw() override;
     void onhit(float damage);
     void onkill();
@@ -96,4 +96,37 @@ private:
     BlockType blockType;
     // box2d
     b2BodyId groundId;
+};
+
+class Enemy : public BaseObj{
+public:
+    Enemy();
+    ~Enemy() override;
+    // 通过Scene的addObject调用initialize方法
+    void initialize(const ResourceLoader::ResourceDict& objConfig);
+    // 设置核心指针（敌人类可能需要输入,比如如果你不会做玩家攻击，那么就直接绑定一个键收到攻击，玩家按下那个键敌人就受伤）
+    void setPtrs(const std::weak_ptr<EventSys>& eventSys,
+                 const std::weak_ptr<sf::RenderWindow>& window,
+                 const std::weak_ptr<b2WorldId>& world,
+                 const std::weak_ptr<GameInputRead>& input);
+    // update方法(在这里更新敌人的AI行为，同时根据位置更新sprite的位置)
+    void update(float deltaTime) override;
+    void draw() override;
+    // 收到攻击
+    void onhit(float damage);
+    void onkill();
+    // 攻击玩家
+    void attackPlayer();
+
+private:
+    // 敌人的生命值,攻击力，攻击冷却等属性
+    float health, attackDamage, attackCooldown;
+    // 敌人是否存活，面向方向
+    bool isAlive, faceRight;
+    // box2d属性
+    b2BodyId bodyId;
+    b2Vec2 velocity;
+    b2Vec2 patrolPointA;
+    b2Vec2 patrolPointB;
+    sf::Vector2f boxparams; // 用于存储方块的宽度和高度
 };
