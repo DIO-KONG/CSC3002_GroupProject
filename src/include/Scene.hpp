@@ -31,6 +31,10 @@ class Scene
         virtual void regTimedEvent(const sf::Time delay, const EventSys::EventFunc& func);
         // 添加对象到场景
         void addObject(const std::string type, const ResourceLoader::ResourceDict& objConfig);
+        // 设置玩家指针
+        void setPlayerPtr(const std::shared_ptr<BaseObj>& player);
+        // 获取Box2D世界ID
+        b2WorldId getWorldId();
 
     protected:
         // 场景中的游戏对象列表
@@ -47,4 +51,6 @@ class Scene
         std::weak_ptr<GameInputRead> inputPtr;
         // 资源加载器路径
         std::string configPath;
+        // 玩家指针
+        std::shared_ptr<BaseObj> playerPtr;
 };

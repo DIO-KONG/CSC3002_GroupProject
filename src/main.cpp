@@ -5,6 +5,7 @@
 #include "GameObj.hpp"
 #include "ResourceLoader.hpp"
 #include "Scene.hpp"
+#include "Player.hpp"
 
 int main()
 {
@@ -45,6 +46,17 @@ int main()
                       eventSys,
                       windowPtr,
                       gameInput);
+    // 创建玩家对象
+    std::shared_ptr<Player> player = std::make_shared<Player>(
+        eventSys,
+        windowPtr,
+        level1Scene->getWorldId(),
+        gameInput
+    );
+    player->initialize();
+    player->setSpawnPosition(100.0f, 500.0f);
+    level1Scene->setPlayerPtr(player);
+
     // 当前场景指针
     std::shared_ptr<Scene> currentScene = level1Scene;
 

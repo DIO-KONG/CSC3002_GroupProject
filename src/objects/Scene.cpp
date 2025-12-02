@@ -92,6 +92,13 @@ void Scene::update(const float deltaTime, const int subStepCount) {
         };
         regImmEvent(EventSys::ImmEventPriority::UPDATE, updateFunc);
     }
+    // 更新玩家对象
+    if (playerPtr) {
+        auto playerUpdateFunc = [this, deltaTime]() {
+            playerPtr->update(deltaTime);
+        };
+        regImmEvent(EventSys::ImmEventPriority::UPDATE, playerUpdateFunc);
+    }
 }
 
 void Scene::render() {
@@ -99,6 +106,11 @@ void Scene::render() {
     for (auto& obj : sceneAssets) {
         // 绘制每个对象
         obj->draw();
+    }
+    // 渲染玩家对象
+    if (playerPtr) {
+        printf("Rendering Player Object.................\n");
+        playerPtr->draw();
     }
 }
 
@@ -158,4 +170,12 @@ void Scene::addObject(const std::string type, const ResourceLoader::ResourceDict
         // 其他类型对象的创建逻辑
         printf("Unknown object type: %s. Object not added.\n", type.c_str());
     }
+}
+
+void Scene::setPlayerPtr(const std::shared_ptr<BaseObj>& player) {
+    playerPtr = player;
+}
+
+b2WorldId Scene::getWorldId() {
+    return *world;
 }

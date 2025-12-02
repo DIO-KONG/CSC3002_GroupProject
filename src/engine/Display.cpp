@@ -29,7 +29,7 @@ void Camera::update()
     // Camera类的更新实现
     // 先简单向右平移视图作为示例(坐标不超过x4000)
     if (view.getCenter().x < 4000.f){
-        view.move({10.f, 0.f});
+        // view.move({10.f, 0.f});
     }
 
     // if (auto target = targetObj.lock())

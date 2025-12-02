@@ -126,6 +126,17 @@ target_link_libraries(GameSceneLib PUBLIC
     box2d::box2d
 )
 
+# 定义玩家库
+add_library(PlayerLib
+    src/objects/Player.cpp
+)
+target_include_directories(PlayerLib PUBLIC src/include)
+target_link_libraries(PlayerLib PUBLIC
+    GameObjLib
+    box2d::box2d
+    SFML::Graphics
+)
+
 # 生成游戏主程序
 add_executable(game src/main.cpp)
 target_compile_features(game PRIVATE cxx_std_17)
@@ -137,6 +148,7 @@ target_link_libraries(game PRIVATE
     GameInputLib
     GameObjLib
     GameSceneLib
+    PlayerLib
     SFML::Graphics
     SFML::Audio
     SFML::Window
