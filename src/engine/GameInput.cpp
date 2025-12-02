@@ -6,7 +6,7 @@ GameInputRead::GameInputRead()
     keyStates.clear();
     Keys = {
         sf::Keyboard::Key::W, sf::Keyboard::Key::A, sf::Keyboard::Key::S, sf::Keyboard::Key::D,
-        sf::Keyboard::Key::Space, sf::Keyboard::Key::Escape
+        sf::Keyboard::Key::Space, sf::Keyboard::Key::Escape, sf::Keyboard::Key::R
         // 可以根据需要添加更多按键
     };
 }

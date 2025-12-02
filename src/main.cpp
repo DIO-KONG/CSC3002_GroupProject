@@ -34,12 +34,12 @@ int main()
     std::string menupth = std::get<std::string>(engineLoader.getValue("MenuPath"));
     std::string level1pth = std::get<std::string>(engineLoader.getValue("level1Path"));
     // 创建初始场景（例:菜单场景）
-    // std::shared_ptr<Scene> menuScene = std::make_shared<Scene>();
-    // // 初始化场景并设置指针
-    // menuScene->init(menupth,
-    //                 eventSys,
-    //                 windowPtr,
-    //                 gameInput);
+    std::shared_ptr<Scene> menuScene = std::make_shared<Scene>();
+    // 初始化场景并设置指针
+    menuScene->init(menupth,
+                    eventSys,
+                    windowPtr,
+                    gameInput);
     // 创建关卡场景
     std::shared_ptr<Scene> level1Scene = std::make_shared<Scene>();
     level1Scene->init(level1pth,
@@ -58,7 +58,10 @@ int main()
     level1Scene->setPlayerPtr(player);
 
     // 当前场景指针
-    std::shared_ptr<Scene> currentScene = level1Scene;
+    // std::shared_ptr<Scene> currentScene = level1Scene;
+
+    std::string sceneName = "Menu";
+    std::shared_ptr<Scene> currentScene = menuScene;
 
     // Debug
     printf("Entering main loop.\n");
@@ -112,6 +115,51 @@ int main()
         else {
             // Debug
             printf("Frame Duration: %.4f seconds. No sleep needed.\n", frameDuration);
+        }
+
+        if (sceneName == "Menu")
+        {
+            // 切换到关卡场景的逻辑（例如按下某个键）
+            GameInputRead::KeyState enterState = gameInput->getKeyState(sf::Keyboard::Key::Space);
+            if (enterState == GameInputRead::KeyState::KEY_PRESSED)
+            {
+                currentScene = level1Scene;
+                sceneName = "Level1";
+                printf("Switched to Level1 scene.\n");
+            }
+        }else if (sceneName == "Level1")
+        {
+            // 重载关卡场景的逻辑（例如按下某个键）
+            GameInputRead::KeyState rState = gameInput->getKeyState(sf::Keyboard::Key::R);
+            if (rState == GameInputRead::KeyState::KEY_PRESSED)
+            {
+                level1Scene->reload();
+                
+                // 删除旧玩家对象
+                player.reset();
+                
+                // 重新创建玩家对象（使用新的 worldId）
+                player = std::make_shared<Player>(
+                    eventSys,
+                    windowPtr,
+                    level1Scene->getWorldId(),
+                    gameInput
+                );
+                player->initialize();
+                player->setSpawnPosition(100.0f, 500.0f);
+                
+                // 重新添加玩家指针
+                level1Scene->setPlayerPtr(player);
+                printf("Level1 scene reloaded.\n");
+            }
+            // 返回菜单场景的逻辑（例如按下某个键）
+            GameInputRead::KeyState escState = gameInput->getKeyState(sf::Keyboard::Key::Escape);
+            if (escState == GameInputRead::KeyState::KEY_PRESSED)
+            {
+                currentScene = menuScene;
+                sceneName = "Menu";
+                printf("Switched to Menu scene.\n");
+            }
         }
     }
 }
