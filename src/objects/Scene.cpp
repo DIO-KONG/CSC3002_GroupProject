@@ -109,7 +109,7 @@ void Scene::render() {
     }
     // 渲染玩家对象
     if (playerPtr) {
-        printf("Rendering Player Object.................\n");
+        // printf("Rendering Player Object.................\n");
         playerPtr->draw();
     }
 }

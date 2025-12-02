@@ -3,7 +3,7 @@
     "background": "assets/texture/background.png",
     "music": "assets/audio/theme.mp3",
     "gravityX": 0.0,
-    "gravityY": 9.8,
+    "gravityY": 500.0,
     "objKeys": ["GraphicObj", "Block", "Enemy"],
     "GraphicObj": [
         {

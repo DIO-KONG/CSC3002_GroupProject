@@ -374,7 +374,7 @@ void Enemy::update(float deltaTime) {
 void Enemy::draw() {
     if (isAlive) {
         // Debug
-        printf("Drawing Enemy......\n");
+        // printf("Drawing Enemy......\n");
         BaseObj::draw();
     }
 }
