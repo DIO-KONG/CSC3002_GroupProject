@@ -23,6 +23,12 @@ void Player::setSpawnPosition(float x, float y)
     m_spawnPos = {x, y};
 }
 
+sf::Vector2f Player::getPosition() const
+{
+    b2Vec2 pos = b2Body_GetPosition(m_body);
+    return sf::Vector2f(pos.x, pos.y);
+}
+
 void Player::initialize()
 {
     // ========== Box2D Body ==========
@@ -32,6 +38,8 @@ void Player::initialize()
     m_body = b2CreateBody(m_world, &def);
 
     b2Polygon box = b2MakeBox(0.5f, 1.0f);
+    // 碰撞箱微调
+    // b2Polygon box = b2MakeOffsetBox(0.5f, 1.0f, {0.0f, 40.0f}, b2Rot_identity);
     b2ShapeDef s  = b2DefaultShapeDef();
     s.density                 = 1.0f;
     s.material.friction       = 0.3f;
@@ -114,6 +122,38 @@ void Player::initialize()
     syncSpriteWithBody();
 }
 
+void Player::draw()
+{
+        // 检查类是否为可以画图的对象
+    if (features.find("drawable") == features.end() || !features.at("drawable")) {
+        // 该对象不支持绘制
+        printf("This object is not drawable.\n");
+        return;
+    }
+    // 检查Sprite是否存在
+    if (!sprite.has_value()) {
+        // 没有可用的Sprite进行绘制
+        printf("No sprite available for drawing.\n");
+        return;
+    }
+    // envrntSys不是optional类型，直接lock
+    auto eventSys = eventSysPtr.lock();
+    // 先从optional中取出weak_ptr指针,再对取出的weak_ptr进行lock操作
+    if (windowPtr.has_value()) {
+        auto window = windowPtr.value().lock();
+        if (eventSys && window) {
+            auto drawEvent = [this, window]() {
+                window->draw(this->sprite.value());
+            };
+            eventSys->regImmEvent(EventSys::ImmEventPriority::DRAWPLAYER, drawEvent);
+            // printf("Draw event registered.\n");
+        }
+        else {
+            // 无法绘制，可能需要记录日志或抛出异常
+        }
+    }
+}
+
 void Player::update()
 {
     update(1.0f / 60.0f);
@@ -134,8 +174,8 @@ void Player::update(float deltaTime)
         m_inWater = false;
     }
 
-    std::cout << "[Player] inWater = " << (m_inWater ? 1 : 0)
-              << " (gravityY=" << g.y << ")\n";
+    // std::cout << "[Player] inWater = " << (m_inWater ? 1 : 0)
+    //           << " (gravityY=" << g.y << ")\n";
 
     updateGroundedState(deltaTime);
     handleHorizontalMovement();

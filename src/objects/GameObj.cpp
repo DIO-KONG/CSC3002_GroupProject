@@ -213,7 +213,9 @@ void Block::initialize(const ResourceLoader::ResourceDict& objConfig) {
     groundBodyDef.type = b2_staticBody; // 静态物体
     // 创建Box2D实体和形状
     groundId = b2CreateBody(*worldPtr->lock(), &groundBodyDef);
-    b2Polygon groundBox = b2MakeBox(width/2, height/2);
+    // b2Polygon groundBox = b2MakeBox(width/2, height/2);
+    // 微调碰撞箱位置
+    b2Polygon groundBox = b2MakeOffsetBox(width/2, height/2, {0.0f, -height*0.80f}, b2Rot_identity);
     b2ShapeDef groundShapeDef = b2DefaultShapeDef ();
     b2CreatePolygonShape (groundId, &groundShapeDef, &groundBox);
     // Debug
@@ -338,7 +340,7 @@ void Enemy::setPtrs(const std::weak_ptr<EventSys>& eventSys,
 
 void Enemy::update(float deltaTime) {
     // Debug
-    printf("Updating Enemy...\n");
+    // printf("Updating Enemy...\n");
 
     // 更新敌人状态
     if (!isAlive) return;

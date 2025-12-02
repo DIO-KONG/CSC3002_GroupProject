@@ -1,5 +1,6 @@
 #include "Display.hpp"
 #include "ConfigLoader.hpp"
+#include <cmath>
 
 Camera::~Camera()
 {
@@ -16,6 +17,11 @@ void Camera::init(sf::Vector2f center, sf::Vector2f size)
     // Camera类的初始化实现
     view.setCenter(center);
     view.setSize(size);
+
+    // 初始化最小X值为屏幕一半
+    minX = size.x / 2.f;
+    maxX = 3500.f; // 假设最大X值为3500，可以根据实际场景调整
+    followoffsetX = size.x / 10.f; // 跟随偏移设为屏幕宽度的十分之一（玩家位于屏幕左边2/5位置）
 }
 
 sf::View& Camera::getView()
@@ -26,17 +32,21 @@ sf::View& Camera::getView()
 
 void Camera::update()
 {
-    // Camera类的更新实现
-    // 先简单向右平移视图作为示例(坐标不超过x4000)
-    if (view.getCenter().x < 4000.f){
-        // view.move({10.f, 0.f});
-    }
+    // Debug
+    // printf("Camera update called. FollowPoint: (%.2f, %.2f), Camera Center: (%.2f, %.2f), followoffsetX: %.2f\n",
+        //    followPoint.x, followPoint.y,
+        //    view.getCenter().x, view.getCenter().y,
+        //    followoffsetX);
 
-    // if (auto target = targetObj.lock())
-    // {
-    //     // 假设BaseObj有一个getPosition()方法返回其位置
-    //     view.setCenter(target->getPosition());
-    // }
+    float targetX = followPoint.x + followoffsetX;
+    
+    if (targetX < minX)
+        targetX = minX;
+    if (targetX > maxX)
+        targetX = maxX;
+
+    // Camera类的更新实现 如果FollowPoint与摄像机中心距离超过followoffsetX，则更新摄像机位置
+    view.setCenter({targetX, view.getCenter().y});
 }
 
 void Camera::setCenter(sf::Vector2f center)
@@ -47,11 +57,6 @@ void Camera::setCenter(sf::Vector2f center)
 void Camera::setSize(sf::Vector2f size)
 {
     view.setSize(size);
-}
-
-void Camera::setTarget(std::weak_ptr<Player> target)
-{
-    targetObj = target;
 }
 
 Display::Display()
@@ -107,9 +112,4 @@ void Display::clear()
 {
     // Display类的清除逻辑实现
     window.clear();
-}
-
-void Display::setCameraTarget(std::weak_ptr<Player> target)
-{
-    camera.setTarget(target);
 }

@@ -78,6 +78,16 @@ int main()
         };
         eventSys->regImmEvent(EventSys::ImmEventPriority::INPUT, keyUpdateEvent);
 
+        // 向事件系统注册摄像机更新事件
+        auto cameraUpdateEvent = [&display, &player]() {
+            if (auto p = player; p)
+            {
+                sf::Vector2f playerPos = p->getPosition();
+                display->camera.updateFollowPoint(playerPos);
+            }
+        };
+        eventSys->regImmEvent(EventSys::ImmEventPriority::PRE_UPDATE, cameraUpdateEvent);
+
         // 场景更新（包括场景内对象更新）
         currentScene->update(deltaTime, subStepCount);
         // 场景渲染

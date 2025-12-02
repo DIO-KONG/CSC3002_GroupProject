@@ -20,12 +20,20 @@ class Camera
         void setCenter(sf::Vector2f center);
         // 设置视图大小
         void setSize(sf::Vector2f size);
-        // 设置跟随目标
-        void setTarget(std::weak_ptr<Player> target);
-
+        // 跟随目标点（通过引用传入Player类进行同步）
+        void updateFollowPoint(sf::Vector2f point)
+        {
+            followPoint = point;
+        }
+        
     private:
         sf::View view;
         std::weak_ptr<Player> targetObj; // 相机跟随的目标对象 （通常是玩家）
+        // 摄像机跟随差值（半个屏幕）
+        float minX = 960.f;
+        float maxX = 3500.f;
+        float followoffsetX = 108.f;
+        sf::Vector2f followPoint;
 };
 
 class Display
@@ -39,11 +47,9 @@ class Display
         void update();
         // 清空窗口内容
         void clear();
-        // 设置相机目标
-        void setCameraTarget(std::weak_ptr<Player> target);
         sf::RenderWindow window;
+        Camera camera;
 
     private:
         ConfigLoader windowLoader;
-        Camera camera;
 };

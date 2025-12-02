@@ -22,6 +22,7 @@ public:
     void update() override;
     void update(float deltaTime);
     void setSpawnPosition(float x, float y);
+    void draw() override;
     b2ShapeId getMainShapeId() const { return m_mainShapeId; }
 
     void setMoveSpeed(float speed) { m_moveSpeed = speed; }
@@ -38,6 +39,7 @@ public:
     }
 
     bool isInWater() const { return m_inWater; }
+    sf::Vector2f getPosition() const;
 
 private:
     // ===== 物理相关 =====
@@ -47,8 +49,8 @@ private:
     b2ShapeId    m_mainShapeId = b2_nullShapeId;
 
     // ===== 移动 / 跳跃（陆地）=====
-    float m_moveSpeed    = 130.0f;
-    float m_jumpSpeed    = 275.0f;
+    float m_moveSpeed    = 200.0f;
+    float m_jumpSpeed    = 400.0f;
     int   m_maxJumpCount = 2;
     int   m_jumpCount    = 0;
     bool  m_grounded     = false;

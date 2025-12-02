@@ -19,7 +19,8 @@ class EventSys
             UPDATE,
             POST_UPDATE,
             DRAWBACKGROUND,
-            DRAW
+            DRAW,
+            DRAWPLAYER
         };
         struct ImmEvent
         {
