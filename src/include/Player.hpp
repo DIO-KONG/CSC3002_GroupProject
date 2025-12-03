@@ -41,6 +41,29 @@ public:
     bool isInWater() const { return m_inWater; }
     sf::Vector2f getPosition() const;
 
+    struct ProjectileSpawnRequest {
+        std::string type;      // "ICE" 或 "FIRE"
+        sf::Vector2f position; // 生成位置
+        bool facingRight;      // 朝向
+    };
+
+    // 回调类型定义
+    using ProjectileSpawnCallback = std::function<void(const ProjectileSpawnRequest&)>;
+
+    // 存储回调函数
+    ProjectileSpawnCallback m_projectileCallback;
+
+    // 设置回调的函数
+    void setProjectileSpawnCallback(const ProjectileSpawnCallback& cb) {
+        m_projectileCallback = cb;
+    }
+
+    // 处理发射逻辑
+    void handleProjectileFire();
+
+    // 计算子弹生成位置
+    sf::Vector2f getProjectileSpawnPosition() const;
+    
 private:
     // ===== 物理相关 =====
     b2WorldId    m_world;
@@ -102,6 +125,10 @@ private:
     float m_animFrameTime    = 0.08f;
 
     float m_moveDir = 0.0f;
+
+    // ===== 射击冷却 =====
+    float m_fireCooldown = 0.0f;      // 当前冷却时间
+    float m_fireCooldownMax = 1.0f;   // 冷却时间上限（1秒）
 
     // ===== 内部逻辑 =====
     void handleHorizontalMovement();

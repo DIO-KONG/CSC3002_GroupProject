@@ -161,7 +161,18 @@ void Player::update()
 
 void Player::update(float deltaTime)
 {
-    // === 根据重力判断：是不是“水下场景” ===
+    // 更新射击冷却
+    if (m_fireCooldown > 0.0f) {
+        m_fireCooldown -= deltaTime;
+        if (m_fireCooldown < 0.0f) {
+            m_fireCooldown = 0.0f;
+        }
+    }
+
+    // 发射子弹
+    handleProjectileFire();  
+    
+    // === 根据重力判断：是不是"水下场景" ===
     b2Vec2 g = b2World_GetGravity(m_world);
     bool worldUnderwater = (g.y < 0.0f);
 
@@ -431,4 +442,77 @@ void Player::updateAnimation(float dt)
     applyAnimationFrame(*m_runTexture,
                         m_runFrames[m_currentRunFrame],
                         m_runScaleFactor);
+}
+
+void Player::handleProjectileFire() {
+    auto input = inputPtr.value().lock();
+    if (!input) {
+        printf("[Player::handleProjectileFire] No input available\n");
+        return;
+    }
+    
+    if (!m_projectileCallback) {
+        printf("[Player::handleProjectileFire] No projectile callback set!\n");
+        return;
+    }
+
+    // 检查冷却时间
+    if (m_fireCooldown > 0.0f) {
+        // printf("[Player] Fire on cooldown: %.2fs remaining\n", m_fireCooldown);
+        return;
+    }
+
+    bool fired = false;
+
+    // J键发射ICE - 只在按下瞬间触发
+    if (input->getKeyState(sf::Keyboard::Key::J) == GameInputRead::KEY_PRESSED) {
+        ProjectileSpawnRequest req;
+        req.type = "ICE";
+        req.position = getProjectileSpawnPosition();
+        req.facingRight = m_facingRight;
+        
+        // printf("[Player] ===== FIRING ICE PROJECTILE =====\n");
+        // printf("[Player]   Position: (%.2f, %.2f)\n", req.position.x, req.position.y);
+        // printf("[Player]   Facing: %s\n", m_facingRight ? "RIGHT" : "LEFT");
+        
+        m_projectileCallback(req);
+        fired = true;
+    }
+    // K键发射FIRE - 只在按下瞬间触发
+    else if (input->getKeyState(sf::Keyboard::Key::K) == GameInputRead::KEY_PRESSED) {
+        ProjectileSpawnRequest req;
+        req.type = "FIRE";
+        req.position = getProjectileSpawnPosition();
+        req.facingRight = m_facingRight;
+        
+        // printf("[Player] ===== FIRING FIRE PROJECTILE =====\n");
+        // printf("[Player]   Position: (%.2f, %.2f)\n", req.position.x, req.position.y);
+        // printf("[Player]   Facing: %s\n", m_facingRight ? "RIGHT" : "LEFT");
+        
+        m_projectileCallback(req);
+        fired = true;
+    }
+
+    // 如果发射了子弹，重置冷却
+    if (fired) {
+        m_fireCooldown = m_fireCooldownMax;
+        // printf("[Player] Fire cooldown set to %.2fs\n", m_fireCooldown);
+    }
+}
+
+sf::Vector2f Player::getProjectileSpawnPosition() const {
+    // 以玩家中心为基准，向前偏移一定距离
+    float offset = 40.0f; // 可调整
+    sf::Vector2f pos = getPosition();
+    
+    // 水平偏移
+    if (m_facingRight)
+        pos.x += offset;
+    else
+        pos.x -= offset;
+    
+    // 垂直上移100像素（y轴向上是负数）
+    // pos.y -= 100.0f;
+    
+    return pos;
 }

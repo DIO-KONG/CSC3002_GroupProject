@@ -6,6 +6,7 @@
 #include <box2d/box2d.h>
 #include <memory>
 #include <vector>
+#include <list>
 #include <variant>
 
 class Scene
@@ -53,4 +54,6 @@ class Scene
         std::string configPath;
         // 玩家指针
         std::shared_ptr<BaseObj> playerPtr;
+        // 子弹列表
+        std::list<std::unique_ptr<Projectile>> projectiles; 
 };

@@ -1,4 +1,5 @@
 #include "Scene.hpp"
+#include "Player.hpp"
 
 void Scene::init(std::string sceneConfigPath, 
             std::weak_ptr<EventSys> eventSys, 
@@ -47,6 +48,45 @@ void Scene::init(std::string sceneConfigPath,
     }
     // Debug
     printf("Scene initialized with %zu objects.\n", sceneAssets.size());
+    // 设置玩家子弹生成回调
+    printf("[Scene::init] Checking playerPtr: %s\n", playerPtr ? "EXISTS" : "NULL");
+    if (playerPtr) {
+        printf("[Scene::init] Setting up projectile callback...\n");
+        auto player = std::dynamic_pointer_cast<Player>(playerPtr);
+        if (player) {
+            printf("[Scene::init] Player cast successful, setting callback\n");
+            player->setProjectileSpawnCallback(
+                [this](const Player::ProjectileSpawnRequest& req) {
+                    printf("[Scene] ===== CALLBACK TRIGGERED =====\n");
+                    printf("[Scene]   Type: %s\n", req.type.c_str());
+                    printf("[Scene]   Position: (%.2f, %.2f)\n", req.position.x, req.position.y);
+                    printf("[Scene]   Facing: %s\n", req.facingRight ? "RIGHT" : "LEFT");
+                    
+                    auto proj = std::make_unique<Projectile>();
+                    printf("[Scene]   Projectile created\n");
+                    
+                    proj->initializeDynamic(
+                        Projectile::fromString(req.type),
+                        req.position,
+                        req.facingRight
+                    );
+                    printf("[Scene]   Projectile initialized\n");
+                    
+                    // 使用公有方法设置指针
+                    proj->setWindowPtr(windowPtr);
+                    proj->setEventSysPtr(eventSysPtr);
+                    printf("[Scene]   Pointers set\n");
+                    
+                    // 你可以根据需要添加 setWorldPtr 等
+                    projectiles.push_back(std::move(proj));
+                    printf("[Scene]   Projectile added to list. Total: %zu\n", projectiles.size());
+                } 
+            );
+            printf("[Scene::init] Callback set successfully in init!\n");
+        }
+    } else {
+        printf("[Scene::init] PlayerPtr is NULL, callback will be set in setPlayerPtr()\n");
+    }
 }
 
 void Scene::reload() {
@@ -99,6 +139,22 @@ void Scene::update(const float deltaTime, const int subStepCount) {
         };
         regImmEvent(EventSys::ImmEventPriority::UPDATE, playerUpdateFunc);
     }
+    // 更新子弹对象
+    for (auto it = projectiles.begin(); it != projectiles.end(); ) {
+        // 这里可以加生命周期判断，超时/碰撞就移除
+        // 例如：(*it)->update(deltaTime);
+        // 假设Projectile有isActive和lifetime机制
+        if (*it) {
+            (*it)->update(deltaTime);
+            // 这里简单假设Projectile有isActive和maxLifetime
+            // 你可以根据实际情况完善
+            // if (!(*it)->isActive) it = projectiles.erase(it);
+            // else ++it;
+            ++it;
+        } else {
+            it = projectiles.erase(it);
+        }
+    }
 }
 
 void Scene::render() {
@@ -111,6 +167,13 @@ void Scene::render() {
     if (playerPtr) {
         // printf("Rendering Player Object.................\n");
         playerPtr->draw();
+    }
+    // 渲染子弹对象
+    if (!projectiles.empty()) {
+        // printf("[Scene] Rendering %zu projectiles\n", projectiles.size());
+    }
+    for (auto& proj : projectiles) {
+        if (proj) proj->draw();
     }
 }
 
@@ -173,7 +236,48 @@ void Scene::addObject(const std::string type, const ResourceLoader::ResourceDict
 }
 
 void Scene::setPlayerPtr(const std::shared_ptr<BaseObj>& player) {
+    // printf("[Scene::setPlayerPtr] Setting player pointer\n");
     playerPtr = player;
+    
+    // 设置玩家子弹生成回调
+    if (playerPtr) {
+        // printf("[Scene::setPlayerPtr] Player pointer set, setting up callback...\n");
+        auto playerCasted = std::dynamic_pointer_cast<Player>(playerPtr);
+        if (playerCasted) {
+            // printf("[Scene::setPlayerPtr] Player cast successful, setting callback\n");
+            playerCasted->setProjectileSpawnCallback(
+                [this](const Player::ProjectileSpawnRequest& req) {
+                    // printf("[Scene] ===== CALLBACK TRIGGERED =====\n");
+                    // printf("[Scene]   Type: %s\n", req.type.c_str());
+                    // printf("[Scene]   Position: (%.2f, %.2f)\n", req.position.x, req.position.y);
+                    // printf("[Scene]   Facing: %s\n", req.facingRight ? "RIGHT" : "LEFT");
+                    
+                    auto proj = std::make_unique<Projectile>();
+                    // printf("[Scene]   Projectile created\n");
+                    
+                    proj->initializeDynamic(
+                        Projectile::fromString(req.type),
+                        req.position,
+                        req.facingRight
+                    );
+                    // printf("[Scene]   Projectile initialized\n");
+                    
+                    // 使用公有方法设置指针
+                    proj->setWindowPtr(windowPtr);
+                    proj->setEventSysPtr(eventSysPtr);
+                    // printf("[Scene]   Pointers set\n");
+                    
+                    projectiles.push_back(std::move(proj));
+                    // printf("[Scene]   Projectile added to list. Total: %zu\n", projectiles.size());
+                } 
+            );
+            // printf("[Scene::setPlayerPtr] Callback set successfully!\n");
+        } else {
+            // printf("[Scene::setPlayerPtr] ERROR: Failed to cast to Player\n");
+        }
+    } else {
+        // printf("[Scene::setPlayerPtr] ERROR: Player pointer is null\n");
+    }
 }
 
 b2WorldId Scene::getWorldId() {

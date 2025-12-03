@@ -394,3 +394,132 @@ void Enemy::onkill() {
     isAlive = false;
     // 例如播放死亡动画、移除敌人等
 }
+
+// -------------------------------- Projectile类实现 --------------------------------
+
+Projectile::Projectile() : BaseObj() {
+    // 构造函数
+}
+
+Projectile::~Projectile() {
+    // 析构函数
+}
+
+Projectile::ProjectileType Projectile::fromString(const std::string& typeStr) {
+    if (typeStr == "ICE") return ICE;
+    if (typeStr == "FIRE") return FIRE;
+    return ICE;
+}
+
+void Projectile::initializeDynamic(ProjectileType type, 
+                                   const sf::Vector2f& position, 
+                                   bool facingRight) {
+    // printf("[Projectile::initializeDynamic] START\n");
+    // printf("[Projectile]   Type: %d\n", (int)type);
+    // printf("[Projectile]   Position: (%.2f, %.2f)\n", position.x, position.y);
+    // printf("[Projectile]   FacingRight: %s\n", facingRight ? "true" : "false");
+    
+    features["drawable"] = true;   
+
+    // 设置类型
+    projectileType = type;
+
+    // 设置初始位置
+    projectilePos = position;
+
+    // 设置速度（硬编码）
+    if (type == ProjectileType::ICE) {
+        speed = 400.0f;
+        texturePath = "assets/texture/iceball.png";
+        // printf("[Projectile]   ICE - speed=%.2f\n", speed);
+    } else if (type == ProjectileType::FIRE) {
+        speed = 500.0f;
+        texturePath = "assets/texture/fireball.png";
+        // printf("[Projectile]   FIRE - speed=%.2f\n", speed);
+    }
+
+    // 设置朝向
+    faceRight = facingRight;
+
+    // 设置速度方向
+    direction = sf::Vector2f(faceRight ? speed : -speed, 0.0f);
+    // printf("[Projectile]   Direction: (%.2f, %.2f)\n", direction.x, direction.y);
+    
+    lifetime = 0.0f;
+    isActive = true;
+    // printf("[Projectile]   isActive: true\n");
+
+    // 加载贴图（硬编码）
+    texture.emplace();
+    if (!texture->loadFromFile(texturePath)) {
+        // printf("[Projectile]   ERROR: Failed to load texture from %s\n", texturePath.c_str());
+    } else {
+        // printf("[Projectile]   Texture loaded successfully from %s\n", texturePath.c_str());
+    }
+    
+    sprite.emplace(*texture);
+    
+    // 设置贴图缩放：x 0.04，y 0.05
+    // 方向翻转：朝右是正数，朝左是负数（翻转贴图）
+    float scaleX = faceRight ? -0.04f : 0.04f;  // 注意：原始贴图朝左，所以朝右需要翻转
+    sprite->setScale({scaleX, 0.05f});
+    // printf("[Projectile]   Sprite scale set to (%.2f, %.2f)\n", scaleX, 0.05f);
+    
+    // 设置贴图中心点，使得翻转以中心为轴
+    auto bounds = sprite->getLocalBounds();
+    sprite->setOrigin({bounds.size.x / 2.0f, bounds.size.y / 2.0f});
+    // printf("[Projectile]   Sprite origin set to (%.2f, %.2f)\n", bounds.size.x / 2.0f, bounds.size.y / 2.0f);
+    
+    sprite->setPosition(position);
+    // printf("[Projectile]   Sprite created and positioned\n");
+    // printf("[Projectile::initializeDynamic] COMPLETE\n");
+}
+
+void Projectile::update(const float deltaTime) {
+    if (!isActive) {
+        // printf("[Projectile::update] Projectile inactive, skipping\n");
+        return;
+    }
+    
+    // 简单直线运动
+    sf::Vector2f oldPos = projectilePos;
+    projectilePos += direction * deltaTime;
+    
+    // printf("[Projectile::update] pos: (%.2f, %.2f) -> (%.2f, %.2f), lifetime: %.2fs\n",
+        //    oldPos.x, oldPos.y, projectilePos.x, projectilePos.y, lifetime);
+    
+    if (sprite.has_value()) {
+        sprite->setPosition(projectilePos);
+    } else {
+        // printf("[Projectile::update] WARNING: No sprite available!\n");
+    }
+    
+    // 生命周期管理
+    lifetime += deltaTime;
+    if (lifetime > 3.0f) { // 例如3秒后消失
+        // printf("[Projectile::update] Lifetime expired, deactivating\n");
+        isActive = false;
+    }
+}
+
+void Projectile::draw() {
+    if (!isActive) {
+        // printf("[Projectile::draw] Projectile inactive, not drawing\n");
+        return;
+    }
+    
+    // printf("[Projectile::draw] Drawing at pos=(%.2f, %.2f)\n", projectilePos.x, projectilePos.y);
+    
+    if (!sprite.has_value()) {
+        // printf("[Projectile::draw] ERROR: No sprite!\n");
+        return;
+    }
+    
+    if (!texture.has_value()) {
+        // printf("[Projectile::draw] ERROR: No texture!\n");
+        return;
+    }
+    
+    BaseObj::draw();
+    // printf("[Projectile::draw] BaseObj::draw() completed\n");
+}

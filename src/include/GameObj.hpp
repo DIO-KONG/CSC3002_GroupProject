@@ -26,6 +26,9 @@ public:
     virtual void regTimedEvent(const sf::Time delay, const EventSys::EventFunc& func);
     // Sprite类的信息前往 https://www.sfml-dev.org/documentation/3.0.2/classsf_1_1Sprite.html 查看
 
+    void setWindowPtr(const std::weak_ptr<sf::RenderWindow>& win) { windowPtr.emplace(win); }
+    void setEventSysPtr(const std::weak_ptr<EventSys>& eventSys) { eventSysPtr = eventSys; }
+
 protected:
     // 类的特征 "box2d" : 是否拥有Box2D物理属性 "sound" : 是否拥有声音属性 ... 需要在initialize中设定
     std::unordered_map<std::string, bool> features;
@@ -129,4 +132,35 @@ private:
     b2Vec2 patrolPointA;
     b2Vec2 patrolPointB;
     sf::Vector2f boxparams; // 用于存储方块的宽度和高度
+};
+
+class Projectile : public BaseObj {
+public:
+    enum ProjectileType {
+        ICE,
+        FIRE
+    };
+
+    Projectile();
+    ~Projectile() override;
+
+    void initializeDynamic(ProjectileType type,
+                           const sf::Vector2f& position,
+                           bool facingRight);
+    void update(const float deltaTime) override;
+    void draw() override;
+    static ProjectileType fromString(const std::string& typeStr);
+
+private:
+    ProjectileType projectileType;
+    float speed;
+    float damage;
+    float lifetime;
+    float maxLifetime;
+    bool isActive;
+    bool faceRight;
+    sf::Vector2f projectilePos;
+    sf::Vector2f direction;
+    std::string texturePath;
+    b2BodyId bodyId;
 };
