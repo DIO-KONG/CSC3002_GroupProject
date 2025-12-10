@@ -6,7 +6,9 @@
 #include <box2d/box2d.h>
 #include <memory>
 #include <vector>
+#include <list>
 #include <variant>
+#include <SFML/Graphics.hpp>
 
 class Scene
 {   
@@ -35,6 +37,11 @@ class Scene
         void setPlayerPtr(const std::shared_ptr<BaseObj>& player);
         // 获取Box2D世界ID
         b2WorldId getWorldId();
+        bool isLevelCompleted() const { return levelCompleted_; }
+        // 设置相机位置（用于视差背景）
+        void setCameraPosition(sf::Vector2f cameraPos) { cameraPosition = cameraPos; }
+        // 设置是否使用相机视差（true=关卡, false=菜单）
+        void setUseParallaxWithCamera(bool use) { useParallaxWithCamera = use; }
 
     protected:
         // 场景中的游戏对象列表
@@ -53,4 +60,17 @@ class Scene
         std::string configPath;
         // 玩家指针
         std::shared_ptr<BaseObj> playerPtr;
+        // 子弹列表
+        std::list<std::unique_ptr<Projectile>> projectiles; 
+
+        //死亡界面字体
+        sf::Font deathFont;
+        bool deathFontLoaded = false;
+        // 掉落死亡线：玩家 y 坐标超过这个值就算掉出世界
+        float fallDeathY_ = 1200.0f;
+        bool levelCompleted_ = false;
+        // 相机位置（用于视差背景计算）
+        sf::Vector2f cameraPosition = {0.0f, 0.0f};
+        // 是否使用相机视差（true=关卡模式, false=菜单模式）
+        bool useParallaxWithCamera = false;
 };

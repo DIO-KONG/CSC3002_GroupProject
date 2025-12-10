@@ -18,6 +18,10 @@ class EventSys
             BOX2D,
             UPDATE,
             POST_UPDATE,
+            DRAWPARALLAX_BACKGROUND,      // 背景视差层
+            DRAWPARALLAX_FAR,    // 最远视差层
+            DRAWPARALLAX_MID,    // 中间视差层
+            DRAWPARALLAX_NEAR,   // 最近视差层
             DRAWBACKGROUND,
             DRAW,
             DRAWPLAYER

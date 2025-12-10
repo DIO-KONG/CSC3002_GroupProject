@@ -29,6 +29,98 @@ sf::Vector2f Player::getPosition() const
     return sf::Vector2f(pos.x, pos.y);
 }
 
+sf::FloatRect Player::getBounds() const
+{
+    if (!sprite.has_value()) {
+        return sf::FloatRect();   // 默认 0,0,0,0
+    }
+    return sprite->getGlobalBounds();
+}
+
+// ===== 血量相关接口实现 =====
+
+void Player::setMaxHealth(float h)
+{
+    if (h < 0.0f) h = 0.0f;
+    m_maxHealth = h;
+    if (m_health > m_maxHealth) {
+        m_health = m_maxHealth;
+    }
+}
+
+float Player::getHealth() const
+{
+    return m_health;
+}
+
+float Player::getMaxHealth() const
+{
+    return m_maxHealth;
+}
+
+bool Player::isAlive() const
+{
+    return m_isAlive;
+}
+
+void Player::takeDamage(float dmg)
+{
+    if (!m_isAlive) return;
+
+    // 出生保护或者受伤后无敌不扣血
+    if (m_spawnProtectionTime > 0.0f || m_invincibleTime > 0.0f) {
+        return;
+    }
+
+
+    m_health -= dmg;
+    printf("[Player] took %.2f damage, hp = %.2f / %.2f\n", dmg, m_health, m_maxHealth);
+
+    if (m_health <= 0.0f) {
+        m_health = 0.0f;
+        kill();
+    } else {
+        // 非致死伤害，触发短暂无敌
+        m_invincibleTime = m_invincibleDuration;
+    }
+}
+
+void Player::takeEnvironmentalDamage(float dmg)
+{
+    if (!m_isAlive) return;
+    if (dmg <= 0.0f) return;
+
+    m_health -= dmg;
+    printf("[Player] env damage = %.2f, hp = %.2f / %.2f\n",
+           dmg, m_health, m_maxHealth);
+
+    if (m_health <= 0.0f) {
+        m_health = 0.0f;
+        kill();   
+    }
+}
+
+
+void Player::heal(float amount)
+{
+    if (!m_isAlive) return;
+    if (amount <= 0.0f) return;
+
+    m_health += amount;
+    if (m_health > m_maxHealth) {
+        m_health = m_maxHealth;
+    }
+}
+
+void Player::kill()
+{
+    if (!m_isAlive) return;
+    m_isAlive = false;
+    // TODO: 之后可以在这里加：播放死亡动画 / 通知 Scene 重新加载关卡 / 回菜单等
+    printf("Player killed.\n");
+}
+
+
 void Player::initialize()
 {
     // ========== Box2D Body ==========
@@ -119,6 +211,16 @@ void Player::initialize()
         );
     }
 
+    // ===== 血量初始化 =====
+    m_maxHealth = 3.0f;   // 先给玩家 3 格血
+    m_health    = m_maxHealth;
+    m_isAlive   = true;
+    m_invincibleTime = 0.0f;
+    m_invincibleDuration = 1.0f;   // 受伤后 1 秒内无敌
+    m_spawnProtectionTime = 0.1f; // 出生后 1 秒不吃到敌人伤害
+
+
+
     syncSpriteWithBody();
 }
 
@@ -143,7 +245,40 @@ void Player::draw()
         auto window = windowPtr.value().lock();
         if (eventSys && window) {
             auto drawEvent = [this, window]() {
+                //先画玩家本体
                 window->draw(this->sprite.value());
+                //再画右上角血条 UI
+                float ratio = getHealthRatio();
+                if (ratio < 0.0f) ratio = 0.0f;
+                if (ratio > 1.0f) ratio = 1.0f;
+                //血条尺寸位置置（相对当前视口）
+                const float barWidth  = 150.0f;
+                const float barHeight = 20.0f;
+                const float margin    = 20.0f;
+
+                sf::View view = window->getView();
+                sf::Vector2f size   = view.getSize();
+                sf::Vector2f center = view.getCenter();
+                
+                float left = center.x - size.x * 0.5f;
+                float top  = center.y - size.y * 0.5f;
+
+                sf::Vector2f barPos(
+                    left + size.x - margin - barWidth,
+                    top  + margin
+                );
+                // 背景条（深红）
+                sf::RectangleShape back(sf::Vector2f(barWidth, barHeight));
+                back.setFillColor(sf::Color(80, 0, 0, 200));
+                back.setPosition(barPos);
+
+                 // 前景条（亮红），长度 = ratio * barWidth
+                sf::RectangleShape front(sf::Vector2f(barWidth * ratio, barHeight));
+                front.setFillColor(sf::Color(200, 0, 0, 230));
+                front.setPosition(barPos);
+
+                window->draw(back);
+                window->draw(front);
             };
             eventSys->regImmEvent(EventSys::ImmEventPriority::DRAWPLAYER, drawEvent);
             // printf("Draw event registered.\n");
@@ -161,8 +296,40 @@ void Player::update()
 
 void Player::update(float deltaTime)
 {
-    // === 根据重力判断：是不是“水下场景” ===
-    b2Vec2 g = b2World_GetGravity(m_world);
+     // 死亡后先直接不更新逻辑
+    if (!m_isAlive) {
+        syncSpriteWithBody();
+        return;
+    }
+    
+    //更新出生保护即使
+    if (m_spawnProtectionTime > 0.0f) {
+        m_spawnProtectionTime -= deltaTime;
+        if (m_spawnProtectionTime < 0.0f) m_spawnProtectionTime = 0.0f;
+    }
+
+    // 更新无敌计时
+    if (m_invincibleTime > 0.0f) {
+        m_invincibleTime -= deltaTime;
+        if (m_invincibleTime < 0.0f) m_invincibleTime = 0.0f;
+    }
+
+    // 更新射击冷却
+    if (m_fireCooldown > 0.0f) {
+        m_fireCooldown -= deltaTime;
+        if (m_fireCooldown < 0.0f) {
+            m_fireCooldown = 0.0f;
+        }
+    }
+
+    // 发射子弹
+    handleProjectileFire();  
+    
+    // === 暂时关闭“按重力判断水下场景”的逻辑，强制按陆地处理 ===
+    m_inWater = false;
+
+    // === 判断：是不是"水下场景" ===
+    /*b2Vec2 g = b2World_GetGravity(m_world);
     bool worldUnderwater = (g.y < 0.0f);
 
     if (worldUnderwater)
@@ -172,7 +339,7 @@ void Player::update(float deltaTime)
     else
     {
         m_inWater = false;
-    }
+    }*/
 
     // std::cout << "[Player] inWater = " << (m_inWater ? 1 : 0)
     //           << " (gravityY=" << g.y << ")\n";
@@ -258,7 +425,8 @@ void Player::handleHorizontalMovement()
     m_moveDir = d;
 
     b2Vec2 v = b2Body_GetLinearVelocity(m_body);
-    v.x = d * m_moveSpeed;
+     //水平速度 = 基础速度 * 环境缩放
+    v.x = d * m_moveSpeed*m_envSpeedScale; 
     b2Body_SetLinearVelocity(m_body, v);
 
     updateSpriteFacing(d);
@@ -431,4 +599,77 @@ void Player::updateAnimation(float dt)
     applyAnimationFrame(*m_runTexture,
                         m_runFrames[m_currentRunFrame],
                         m_runScaleFactor);
+}
+
+void Player::handleProjectileFire() {
+    auto input = inputPtr.value().lock();
+    if (!input) {
+        printf("[Player::handleProjectileFire] No input available\n");
+        return;
+    }
+    
+    if (!m_projectileCallback) {
+        printf("[Player::handleProjectileFire] No projectile callback set!\n");
+        return;
+    }
+
+    // 检查冷却时间
+    if (m_fireCooldown > 0.0f) {
+        // printf("[Player] Fire on cooldown: %.2fs remaining\n", m_fireCooldown);
+        return;
+    }
+
+    bool fired = false;
+
+    // J键发射ICE - 只在按下瞬间触发
+    if (input->getKeyState(sf::Keyboard::Key::J) == GameInputRead::KEY_PRESSED) {
+        ProjectileSpawnRequest req;
+        req.type = "ICE";
+        req.position = getProjectileSpawnPosition();
+        req.facingRight = m_facingRight;
+        
+        // printf("[Player] ===== FIRING ICE PROJECTILE =====\n");
+        // printf("[Player]   Position: (%.2f, %.2f)\n", req.position.x, req.position.y);
+        // printf("[Player]   Facing: %s\n", m_facingRight ? "RIGHT" : "LEFT");
+        
+        m_projectileCallback(req);
+        fired = true;
+    }
+    // K键发射FIRE - 只在按下瞬间触发
+    else if (input->getKeyState(sf::Keyboard::Key::K) == GameInputRead::KEY_PRESSED) {
+        ProjectileSpawnRequest req;
+        req.type = "FIRE";
+        req.position = getProjectileSpawnPosition();
+        req.facingRight = m_facingRight;
+        
+        // printf("[Player] ===== FIRING FIRE PROJECTILE =====\n");
+        // printf("[Player]   Position: (%.2f, %.2f)\n", req.position.x, req.position.y);
+        // printf("[Player]   Facing: %s\n", m_facingRight ? "RIGHT" : "LEFT");
+        
+        m_projectileCallback(req);
+        fired = true;
+    }
+
+    // 如果发射了子弹，重置冷却
+    if (fired) {
+        m_fireCooldown = m_fireCooldownMax;
+        // printf("[Player] Fire cooldown set to %.2fs\n", m_fireCooldown);
+    }
+}
+
+sf::Vector2f Player::getProjectileSpawnPosition() const {
+    // 以玩家中心为基准，向前偏移一定距离
+    float offset = 40.0f; // 可调整
+    sf::Vector2f pos = getPosition();
+    
+    // 水平偏移
+    if (m_facingRight)
+        pos.x += offset;
+    else
+        pos.x -= offset;
+    
+    // 垂直上移100像素（y轴向上是负数）
+    // pos.y -= 100.0f;
+    
+    return pos;
 }

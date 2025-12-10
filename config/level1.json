@@ -4,13 +4,55 @@
     "music": "assets/audio/theme.mp3",
     "gravityX": 0.0,
     "gravityY": 500.0,
-    "objKeys": ["GraphicObj", "Block", "Enemy"],
-    "GraphicObj": [
+    "objKeys": ["ParallaxLayer", "Block", "Enemy", "Trap"],
+    "ParallaxLayer": [
         {
-            "type": "BACKGROUND",
-            "x": 0.0,
-            "y": 0.0,
-            "texture": "assets/texture/background.png"
+            "layer": 0,
+            "texture": "assets/pixel_art_mountains_parallax/layers/background.png",
+            "speed": 0.0,
+            "y": 0.0
+        },
+        {
+            "layer": 1,
+            "texture": "assets/pixel_art_mountains_parallax/layers/mountains_2.png",
+            "speed": 0.1,
+            "y": 0.0
+        },
+        {
+            "layer": 2,
+            "texture": "assets/pixel_art_mountains_parallax/layers/mountains_1.png",
+            "speed": 0.2,
+            "y": 0.0
+        },
+        {
+            "layer": 3,
+            "texture": "assets/pixel_art_mountains_parallax/layers/clouds_big.png",
+            "speed": 0.3,
+            "y": 0.0
+        },
+        {
+            "layer": 4,
+            "texture": "assets/pixel_art_mountains_parallax/layers/clouds_small.png",
+            "speed": 0.4,
+            "y": 0.0
+        },
+        {
+            "layer": 5,
+            "texture": "assets/pixel_art_mountains_parallax/layers/valley.png",
+            "speed": 0.6,
+            "y": 0.0
+        },
+        {
+            "layer": 6,
+            "texture": "assets/pixel_art_mountains_parallax/layers/christmas_trees_2.png",
+            "speed": 1.0,
+            "y": 0.0
+        },
+        {
+            "layer": 7,
+            "texture": "assets/pixel_art_mountains_parallax/layers/christmas_trees_1.png",
+            "speed": 1.4,
+            "y": 0.0
         }
     ],
     "Block": [
@@ -69,13 +111,13 @@
             "texture": "assets/texture/lava.png"
         },
         {
-            "type": "ICE",
-            "health": 50.0,
+            "type": "LAVA",
+            "health": 100.0,
             "x": 1200.0,
             "y": 700.0,
             "width": 200.0,
             "height": 50.0,
-            "texture": "assets/texture/ice.png"
+            "texture": "assets/texture/lava.png"
         },
         {
             "type": "ICE",
@@ -87,22 +129,22 @@
             "texture": "assets/texture/ice.png"
         },
         {
-            "type": "LAVA",
-            "health": 100.0,
+            "type": "ICE",
+            "health": 50.0,
             "x": 1600.0,
             "y": 700.0,
             "width": 200.0,
             "height": 50.0,
-            "texture": "assets/texture/lava.png"
+            "texture": "assets/texture/ice.png"
         },
         {
-            "type": "GRASS",
-            "health": 1000000.0,
+            "type": "LAVA",
+            "health": 100.0,
             "x": 1800.0,
             "y": 700.0,
             "width": 200.0,
             "height": 50.0,
-            "texture": "assets/texture/grass.png"
+            "texture": "assets/texture/lava.png"
         },
         {
             "type": "GRASS",
@@ -116,7 +158,16 @@
         {
             "type": "GRASS",
             "health": 1000000.0,
-            "x": 2300.0,
+            "x": 2200.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 2500.0,
             "y": 600.0,
             "width": 200.0,
             "height": 50.0,
@@ -125,17 +176,8 @@
         {
             "type": "GRASS",
             "health": 1000000.0,
-            "x": 2600.0,
+            "x": 2800.0,
             "y": 400.0,
-            "width": 200.0,
-            "height": 50.0,
-            "texture": "assets/texture/grass.png"
-        },
-        {
-            "type": "GRASS",
-            "health": 1000000.0,
-            "x": 3000.0,
-            "y": 700.0,
             "width": 200.0,
             "height": 50.0,
             "texture": "assets/texture/grass.png"
@@ -175,12 +217,21 @@
             "width": 200.0,
             "height": 50.0,
             "texture": "assets/texture/grass.png"
+        },
+        {
+            "type": "GRASS",
+            "health": 1000000.0,
+            "x": 4000.0,
+            "y": 700.0,
+            "width": 200.0,
+            "height": 50.0,
+            "texture": "assets/texture/grass.png"
         }
     ],
     "Enemy": [
         {
-            "health": 100.0,
-            "attackDamage": 10.0,
+            "health": 3.0,
+            "attackDamage": 1.0,
             "attackCooldown": 2.0,
             "x": 3200.0,
             "y": 500.0,
@@ -196,5 +247,54 @@
             "patrolBy": 500.0,
             "texture": "assets/texture/enemy.png"
         }
+    ],
+    "Trap": [
+        {
+            "type": "SPIKE",
+            "element": "FIRE",
+            "health": 2.0,
+            "damage": 1.0,
+            "x": 600.0,
+            "y": 640.0,
+            "width": 100.0,
+            "height": 100.0,
+            "triggerX": 400.0,
+            "triggerY": 500.0,
+            "triggerWidth": 200.0,
+            "triggerHeight": 200.0,
+            "texture": "assets/texture/spike_fire.png"
+        },
+        {
+            "type": "SPIKE",
+            "element": "ICE",
+            "health": 2.0,
+            "damage": 1.0,
+            "x": 2300.0,
+            "y": 620.0,
+            "width": 100.0,
+            "height": 100.0,
+            "triggerX": 2100.0,
+            "triggerY": 500.0,
+            "triggerWidth": 200.0,
+            "triggerHeight": 200.0,
+            "texture": "assets/texture/spike_ice.png"
+        },
+        {
+        "type": "GOAL",
+        "element": "NEUTRAL",
+        "health": 9999.0,
+        "damage": 0.0,
+        "x": 3800.0,
+        "y": 600.0,
+        "width": 100.0,
+        "height": 200.0,
+
+        "triggerX": 3600.0,
+        "triggerY": 500.0,
+        "triggerWidth": 400.0,
+        "triggerHeight": 300.0,
+
+        "texture": "assets/texture/spike.png"
+    }
     ]
 }

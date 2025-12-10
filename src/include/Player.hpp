@@ -28,6 +28,29 @@ public:
     void setMoveSpeed(float speed) { m_moveSpeed = speed; }
     void setJumpSpeed(float speed) { m_jumpSpeed = speed; }
 
+    //血量受伤相关接口
+    void  setMaxHealth(float h);
+    float getHealth() const;
+    float getMaxHealth() const;
+    bool  isAlive() const;
+    void  heal(float amount);
+    void  kill();
+    void  takeDamage(float dmg);
+    bool  isAliveFlag() const { return m_isAlive; }
+    float getHealthRatio() const { return (m_maxHealth > 0.0f ? m_health / m_maxHealth : 0.0f); }
+
+    
+    // 设置环境对移动速度的影响（1.0 = 正常，<1.0 = 变慢）
+    void setEnvSpeedScale(float s) { m_envSpeedScale = s; }
+    //查询有没有踩在冰上
+    bool isOnIce() const { return m_envSpeedScale < 0.999f; }
+
+    void takeEnvironmentalDamage(float dmg);  // 新增这个
+
+    // 给 Scene 用来做碰撞的外轮廓
+    sf::FloatRect getBounds() const;
+
+
     // 明确由 Scene 传入水域区域（中心+宽高，AABB“碰撞”判断）
     void setWaterRegion(float x, float y, float w, float h)
     {
@@ -41,6 +64,29 @@ public:
     bool isInWater() const { return m_inWater; }
     sf::Vector2f getPosition() const;
 
+    struct ProjectileSpawnRequest {
+        std::string type;      // "ICE" 或 "FIRE"
+        sf::Vector2f position; // 生成位置
+        bool facingRight;      // 朝向
+    };
+
+    // 回调类型定义
+    using ProjectileSpawnCallback = std::function<void(const ProjectileSpawnRequest&)>;
+
+    // 存储回调函数
+    ProjectileSpawnCallback m_projectileCallback;
+
+    // 设置回调的函数
+    void setProjectileSpawnCallback(const ProjectileSpawnCallback& cb) {
+        m_projectileCallback = cb;
+    }
+
+    // 处理发射逻辑
+    void handleProjectileFire();
+
+    // 计算子弹生成位置
+    sf::Vector2f getProjectileSpawnPosition() const;
+    
 private:
     // ===== 物理相关 =====
     b2WorldId    m_world;
@@ -48,13 +94,23 @@ private:
     sf::Vector2f m_spawnPos{0.0f, 0.0f};
     b2ShapeId    m_mainShapeId = b2_nullShapeId;
 
+    // ===== 血量相关 =====
+    float m_maxHealth          = 3.0f;
+    float m_health             = 3.0f;
+    bool  m_isAlive            = true;
+    float m_invincibleTime     = 0.0f;   // 受伤后无敌时间计时
+    float m_invincibleDuration = 1.0f;   // 无敌持续 1 秒
+    float m_spawnProtectionTime = 0.0f;   // 出生后保护时间（秒）
+
+
     // ===== 移动 / 跳跃（陆地）=====
-    float m_moveSpeed    = 200.0f;
+    float m_moveSpeed    = 300.0f;
     float m_jumpSpeed    = 400.0f;
     int   m_maxJumpCount = 2;
     int   m_jumpCount    = 0;
     bool  m_grounded     = false;
     bool  m_isJumpingUp  = false;
+    float m_envSpeedScale = 1.0f;   // 缺省正常速度
 
     // ===== 水下系统 =====
     bool  m_hasWaterRegion = false;     // 是否配置了水域
@@ -102,6 +158,10 @@ private:
     float m_animFrameTime    = 0.08f;
 
     float m_moveDir = 0.0f;
+
+    // ===== 射击冷却 =====
+    float m_fireCooldown = 0.0f;      // 当前冷却时间
+    float m_fireCooldownMax = 1.0f;   // 冷却时间上限（1秒）
 
     // ===== 内部逻辑 =====
     void handleHorizontalMovement();

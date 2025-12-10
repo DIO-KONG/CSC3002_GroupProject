@@ -1,27 +1,80 @@
 {
-    "name": "Memu",
+    "name": "Menu",
     "music": "assets/audio/memu_theme.mp3",
-    "objKeys": ["GraphicObj"],
+    "objKeys": ["ParallaxLayer", "GraphicObj"],
     "gravityX": 0.0,
     "gravityY": 0.0,
+    "ParallaxLayer": [
+        {
+            "layer": 0,
+            "texture": "assets/pixel_art_mountains_parallax/layers/background.png",
+            "speed": 0.0,
+            "y": 0.0
+        },
+        {
+            "layer": 1,
+            "texture": "assets/pixel_art_mountains_parallax/layers/mountains_2.png",
+            "speed": 5.0,
+            "y": 0.0
+        },
+        {
+            "layer": 2,
+            "texture": "assets/pixel_art_mountains_parallax/layers/mountains_1.png",
+            "speed": 10.0,
+            "y": 0.0
+        },
+        {
+            "layer": 3,
+            "texture": "assets/pixel_art_mountains_parallax/layers/clouds_big.png",
+            "speed": 15.0,
+            "y": 0.0
+        },
+        {
+            "layer": 4,
+            "texture": "assets/pixel_art_mountains_parallax/layers/clouds_small.png",
+            "speed": 20.0,
+            "y": 0.0
+        },
+        {
+            "layer": 5,
+            "texture": "assets/pixel_art_mountains_parallax/layers/valley.png",
+            "speed": 25.0,
+            "y": 0.0
+        },
+        {
+            "layer": 6,
+            "texture": "assets/pixel_art_mountains_parallax/layers/christmas_trees_2.png",
+            "speed": 30.0,
+            "y": 0.0
+        },
+        {
+            "layer": 7,
+            "texture": "assets/pixel_art_mountains_parallax/layers/christmas_trees_1.png",
+            "speed": 40.0,
+            "y": 0.0
+        }
+    ],
     "GraphicObj": [
         {
-            "type": "BUTTON",
-            "x": 400.0,
-            "y": 300.0,
+            "type": "BACKGROUND",
+            "x": 650.0,
+            "y": 100.0,
             "width": 200.0,
             "height": 80.0,
-            "texture": "assets/texture/start_button.png",
-            "text": "Press any key to Start",
+            "texture": "assets/texture/logo.png",
+            "text": "Press any Space to Start",
             "sound": "assets/audio/button_click.mp3"
         },
         {
-            "type": "BACKGROUND",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 800.0,
-            "height": 600.0,
-            "texture": "assets/texture/menu_background.png"
+            "type": "BUTTON",
+            "x": 700.0,
+            "y": 600.0,
+            "width": 0.0,
+            "height": 0.0,
+            "texture": "assets/texture/prompt.png",
+            "text": "Welcome to the Game!",
+            "fontSize": 32,
+            "color": "#FFFFFF"
         }
     ]
 }
