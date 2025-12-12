@@ -102,7 +102,7 @@ target_link_libraries(DisplayLib PUBLIC
 # 定义游戏对象库
 add_library(GameObjLib
     src/objects/GameObj.cpp
-    src/objects/Audiomanager.cpp
+    src/objects/AudioManager.cpp
 )
 target_include_directories(GameObjLib PUBLIC src/include)
 target_link_libraries(GameObjLib PUBLIC
@@ -129,7 +129,7 @@ target_link_libraries(GameSceneLib PUBLIC
 
 # 定义玩家库
 add_library(PlayerLib
-    src/objects/Player.cpp
+    src/objects/player.cpp
 )
 target_include_directories(PlayerLib PUBLIC src/include)
 target_link_libraries(PlayerLib PUBLIC
