@@ -16,6 +16,16 @@ project(CSC3002_GroupProject)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)  # .exe, .dll
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)  # .lib (static), .a
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)  # .so (shared on Unix)
+# 强制所有配置使用相同的输出目录（适用于 MSVC）
+if(MSVC)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/lib)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/lib)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/lib)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/lib)
+endif()
+
 
 # 对于多配置生成器（如 Visual Studio），需要分别设置每个配置
 foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
@@ -124,6 +134,7 @@ target_link_libraries(GameSceneLib PUBLIC
     ResourceLib
     EventSysLib
     GameInputLib
+    PlayerLib
     box2d::box2d
 )
 
