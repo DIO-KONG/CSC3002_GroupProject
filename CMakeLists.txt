@@ -10,12 +10,11 @@ endif()
 cmake_minimum_required(VERSION 3.28)
 project(CSC3002_GroupProject)
 
-# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
 # 完整的输出目录配置
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)  # .exe, .dll
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)  # .lib (static), .a
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)  # .so (shared on Unix)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
 # 强制所有配置使用相同的输出目录（适用于 MSVC）
 if(MSVC)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/bin)
@@ -25,7 +24,6 @@ if(MSVC)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/lib)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/lib)
 endif()
-
 
 # 对于多配置生成器（如 Visual Studio），需要分别设置每个配置
 foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
@@ -63,6 +61,12 @@ FetchContent_Declare(
     EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(SFML box2d nlohmann_json)
+
+# ============================================
+# 库定义 - 按依赖顺序排列
+# ============================================
+
+# 1. 基础库 - 无依赖或只依赖外部库
 
 # 定义配置加载器库
 add_library(ConfigLib
@@ -109,6 +113,8 @@ target_link_libraries(DisplayLib PUBLIC
     SFML::Graphics
 )
 
+# 2. 中层库 - 依赖基础库
+
 # 定义游戏对象库
 add_library(GameObjLib
     src/objects/GameObj.cpp
@@ -122,6 +128,19 @@ target_link_libraries(GameObjLib PUBLIC
     box2d::box2d
     SFML::Graphics
     SFML::Audio
+)
+
+# 3. 高层库 - 依赖中层库
+
+# 定义玩家库（必须在 GameSceneLib 之前定义）
+add_library(PlayerLib
+    src/objects/player.cpp
+)
+target_include_directories(PlayerLib PUBLIC src/include)
+target_link_libraries(PlayerLib PUBLIC
+    GameObjLib
+    box2d::box2d
+    SFML::Graphics
 )
 
 # 定义游戏场景库
@@ -138,16 +157,9 @@ target_link_libraries(GameSceneLib PUBLIC
     box2d::box2d
 )
 
-# 定义玩家库
-add_library(PlayerLib
-    src/objects/player.cpp
-)
-target_include_directories(PlayerLib PUBLIC src/include)
-target_link_libraries(PlayerLib PUBLIC
-    GameObjLib
-    box2d::box2d
-    SFML::Graphics
-)
+# ============================================
+# 可执行文件
+# ============================================
 
 # 生成游戏主程序
 add_executable(game src/main.cpp)
@@ -167,6 +179,18 @@ target_link_libraries(game PRIVATE
     SFML::System
 )
 
+# ============================================
+# 测试程序
+# ============================================
+
+# # 测试 ResourceLoader
+# add_executable(RL_test src/test/RL_test.cpp)
+# target_compile_features(RL_test PRIVATE cxx_std_17)
+# target_include_directories(RL_test PRIVATE src/include)
+# target_link_libraries(RL_test PRIVATE
+#     ResourceLib
+#     nlohmann_json::nlohmann_json
+# )
 
 # # 测试 SFML
 # add_executable(SFML_test src/test/SFML_test.cpp)
@@ -186,18 +210,12 @@ target_link_libraries(game PRIVATE
 # )
 
 # # 测试 ConfigLoader 
-# add_executable(CL_test src/test/CL_test.cpp src/loader/ConfigLoader.cpp)
+# add_executable(CL_test src/test/CL_test.cpp)
 # target_compile_features(CL_test PRIVATE cxx_std_17)
-# target_link_directories(CL_test PRIVATE
-#     ${CMAKE_CURRENT_SOURCE_DIR}/src/loader
+# target_include_directories(CL_test PRIVATE src/include)
+# target_link_libraries(CL_test PRIVATE
+#     ConfigLib
 # )
-
-# 测试 ResourceLoader
-add_executable(RL_test src/test/RL_test.cpp src/loader/ResourceLoader.cpp)
-target_compile_features(RL_test PRIVATE cxx_std_17)
-target_link_libraries(RL_test PRIVATE
-    ResourceLib
-)
 
 # # 测试按键读取
 # add_executable(KeyRead_test src/test/KeyRead_test.cpp)
@@ -207,11 +225,10 @@ target_link_libraries(RL_test PRIVATE
 #     SFML::Graphics
 # )
 
-
 # # 测试事件系统
-# add_executable(EventSys_test src/test/EventSys_test.cpp)
+# add_executable(EventSys_test src/test/EventSys_test. cpp)
 # target_compile_features(EventSys_test PRIVATE cxx_std_17)
-# target_include_directories(EventSys_test PUBLIC src/include)
+# target_include_directories(EventSys_test PRIVATE src/include)
 # target_link_libraries(EventSys_test PRIVATE
 #     EventSysLib
 # )
