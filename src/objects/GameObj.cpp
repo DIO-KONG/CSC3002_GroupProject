@@ -1,4 +1,4 @@
-#include "GameObj.hpp"
+#include "../include/GameObj.hpp"
 #include <cmath>
 
 BaseObj::BaseObj(){
@@ -250,6 +250,16 @@ void Block::update(float deltaTime) {
     // 例如处理与玩家的交互、动画等
 }
 
+sf::FloatRect Block::getHitBox() const {
+    // 如果没有 sprite，就返回一个空矩形
+    if (!sprite.has_value()) {
+        return sf::FloatRect();
+    }
+    // 直接用 SFML 自带的全局包围盒作为 hitbox
+    return sprite->getGlobalBounds();
+}
+
+
 void Block::onhit(float damage) {
     health -= damage;
     if (health < 0) {
@@ -264,163 +274,225 @@ void Block::onkill() {
 }
 
 // -------------------------------- Enemy类实现 --------------------------------
-
-Enemy::Enemy() : BaseObj() {
-    // 构造函数
-}
-
-Enemy::~Enemy() {
-    // 析构函数
-}
-
-void Enemy::initialize(const ResourceLoader::ResourceDict& objConfig) {
-    // 初始化敌人对象
-    // 设置特征，例如支持绘制和Box2D物理
-    features["drawable"] = true;
-    features["box2d"] = true;
-    // 解析objConfig以设置敌人类型、生命值等
-    maxHealth      = std::get<float>(objConfig.at("health"));
-    health         = maxHealth;
-    attackDamage   = std::get<float>(objConfig.at("attackDamage"));
-    attackCooldown = std::get<float>(objConfig.at("attackCooldown"));
-    faceRight      = true;
-    isAlive        = true;
-
-    // 敌人巡逻路径，到端点调头
-    patrolPointA = {std::get<float>(objConfig.at("patrolAx")),
-                    std::get<float>(objConfig.at("patrolAy"))};
-    patrolPointB = {std::get<float>(objConfig.at("patrolBx")),
-                    std::get<float>(objConfig.at("patrolBy"))};
-    // 加载纹理和设置Sprite
-    std::string texturePath = std::get<std::string>(objConfig.at("texture"));
-    texture.emplace();
-    if (texture->loadFromFile(texturePath)) {
-        sprite.emplace(texture.value());
-    } else {
-        // 纹理加载失败处理
-        printf("Failed to load enemy texture from %s\n", texturePath.c_str());
+    Enemy::Enemy() : BaseObj() {
+        // 构造函数
     }
-    // 设置box2d实体(使用临时变量加载数据，构建实体后，临时变量会被释放)
-    float posX = std::get<float>(objConfig.at("x"));
-    float posY = std::get<float>(objConfig.at("y"));
-    float width = std::get<float>(objConfig.at("width"));
-    float height = std::get<float>(objConfig.at("height"));
-    float density = std::get<float>(objConfig.at("density"));
-    float friction = std::get<float>(objConfig.at("friction"));
-    float velocityX = std::get<float>(objConfig.at("velocityX"));
-    float velocityY = std::get<float>(objConfig.at("velocityY"));
-    boxparams = {width, height};
 
-    // 创建Box2D实体和形状
-    b2BodyDef bodyDef = b2DefaultBodyDef();
-    b2Vec2 Bodyposition = {posX+width/2, posY+height/2};
-    bodyDef.position = Bodyposition; // Box2D坐标系中心点
-    // bodyDef.fixedRotation = true; // 不允许旋转
-    bodyDef.type = b2_dynamicBody; // 动态物体
+    Enemy::~Enemy() {
+        // 析构函数
+    }
 
-    bodyId = b2CreateBody(*worldPtr->lock(), &bodyDef);
+    void Enemy::initialize(const ResourceLoader::ResourceDict& objConfig) {
+        // 初始化敌人对象
+        // 设置特征，例如支持绘制和Box2D物理
+        features["drawable"] = true;
+        features["box2d"]    = true;
 
-    b2Polygon box = b2MakeBox(width/2, height/2);
-    b2ShapeDef shapeDef = b2DefaultShapeDef ();
-    shapeDef.density = density;
-    shapeDef.material.friction = friction;
-    b2CreatePolygonShape (bodyId, &shapeDef, &box);
+        // 基本属性
+        maxHealth      = std::get<float>(objConfig.at("health"));
+        health         = maxHealth;
+        attackDamage   = std::get<float>(objConfig.at("attackDamage"));
+        attackCooldown = std::get<float>(objConfig.at("attackCooldown"));
+        faceRight      = true;
+        isAlive        = true;
 
-    // 设置初始速度
-    velocity = {velocityX, velocityY};
-    b2Body_SetLinearVelocity(bodyId, velocity);
+        // 敌人巡逻路径，到端点调头
+        patrolPointA = {
+            std::get<float>(objConfig.at("patrolAx")),
+            std::get<float>(objConfig.at("patrolAy"))
+        };
+        patrolPointB = {
+            std::get<float>(objConfig.at("patrolBx")),
+            std::get<float>(objConfig.at("patrolBy"))
+        };
 
-    // Debug
-    printf("Enemy Box2D body created...\n");
-}
+        // ===== 贴图和 Sprite =====
+        std::string texturePath = std::get<std::string>(objConfig.at("texture"));
+        texture.emplace();
+        if (texture->loadFromFile(texturePath)) {
+            sprite.emplace(texture.value());
+        } else {
+            printf("Failed to load enemy texture from %s\n", texturePath.c_str());
+        }
 
-void Enemy::setPtrs(const std::weak_ptr<EventSys>& eventSys,
-                    const std::weak_ptr<sf::RenderWindow>& window,
-                    const std::weak_ptr<b2WorldId>& world,
-                    const std::weak_ptr<GameInputRead>& input) {
-    eventSysPtr = eventSys;
-    windowPtr.emplace(window);
-    worldPtr.emplace(world);
-    inputPtr.emplace(input);
-}
+        // ===== Box2D 实体 =====
+        float posX      = std::get<float>(objConfig.at("x"));
+        float posY      = std::get<float>(objConfig.at("y"));
+        float width     = std::get<float>(objConfig.at("width"));
+        float height    = std::get<float>(objConfig.at("height"));
+        float density   = std::get<float>(objConfig.at("density"));
+        float friction  = std::get<float>(objConfig.at("friction"));
+        float velocityX = std::get<float>(objConfig.at("velocityX"));
+        float velocityY = std::get<float>(objConfig.at("velocityY"));
 
-void Enemy::update(float deltaTime) {
+        boxparams = { width, height };
+
+        // 创建Box2D实体和形状
+        b2BodyDef bodyDef = b2DefaultBodyDef();
+        b2Vec2 Bodyposition = { posX + width * 0.5f, posY + height * 0.5f };
+        bodyDef.position = Bodyposition;  // Box2D坐标系中心点
+        bodyDef.type     = b2_dynamicBody;
+
+        bodyId = b2CreateBody(*worldPtr->lock(), &bodyDef);
+
+        b2Polygon box = b2MakeBox(width * 0.5f, height * 0.5f);
+        b2ShapeDef shapeDef = b2DefaultShapeDef();
+        shapeDef.density             = density;
+        shapeDef.material.friction   = friction;
+        b2CreatePolygonShape(bodyId, &shapeDef, &box);
+
+        // 设置初始速度
+        velocity = { velocityX, velocityY };
+        b2Body_SetLinearVelocity(bodyId, velocity);
+
+        // Debug
+        printf("Enemy Box2D body created...\n");
+
+        // ===== 敌人动画：按横向 spritesheet 切帧 =====
+        // 假设 enemy.png 是横向 4 帧动画，如果你是 3 帧 / 6 帧就改这个数字
+        const int frameCount = 3;
+
+        if (sprite.has_value() && texture.has_value()) {
+            sf::Vector2u texSize = texture->getSize();
+            if (texSize.x > 0 && texSize.y > 0 && frameCount > 0) {
+                int frameW = static_cast<int>(texSize.x) / frameCount;
+                int frameH = static_cast<int>(texSize.y);
+
+                animFrames.clear();
+                for (int i = 0; i < frameCount; ++i) {
+                    sf::Vector2i pos(i * frameW, 0);
+                    sf::Vector2i size(frameW, frameH);
+                    animFrames.emplace_back(pos, size);
+                }
+
+                currentAnimFrame = 0;
+                animTimer        = 0.0f;
+                animFrameTime    = 0.15f;  // 每帧 0.15 秒
+
+                if (!animFrames.empty()) {
+                    sprite->setTextureRect(animFrames[0]);
+                }
+            }
+
+            // 初始化缩放为 (1,1)，后面只改 x 的正负号来左右翻转
+            sprite->setScale(sf::Vector2f{1.0f, 1.0f});
+        }
+    }
+
+    void Enemy::setPtrs(const std::weak_ptr<EventSys>& eventSys,
+                        const std::weak_ptr<sf::RenderWindow>& window,
+                        const std::weak_ptr<b2WorldId>& world,
+                        const std::weak_ptr<GameInputRead>& input) {
+        eventSysPtr = eventSys;
+        windowPtr.emplace(window);
+        worldPtr.emplace(world);
+        inputPtr.emplace(input);
+    }
+
+    void Enemy::update(float deltaTime) {
     // Debug
     // printf("Updating Enemy...\n");
 
-    // 更新敌人状态
+    // 敌人死了就不更新
     if (!isAlive) return;
 
-    // 简单巡逻AI
+    // ========= 1. 巡逻 AI（保持原来的逻辑） =========
     b2Vec2 position = b2Body_GetPosition(bodyId);
     if (faceRight) {
         // 向右移动
-        b2Body_SetLinearVelocity(bodyId, {std::abs(velocity.x), velocity.y});
+        b2Body_SetLinearVelocity(bodyId, { std::abs(velocity.x), velocity.y });
         if (position.x >= patrolPointB.x) {
             faceRight = false; // 到达右端点，调头
         }
     } else {
         // 向左移动
-        b2Body_SetLinearVelocity(bodyId, {-std::abs(velocity.x), velocity.y});
+        b2Body_SetLinearVelocity(bodyId, { -std::abs(velocity.x), velocity.y });
         if (position.x <= patrolPointA.x) {
             faceRight = true; // 到达左端点，调头
         }
     }
 
-    // 根据Box2D实体位置更新Sprite位置，注意坐标转换
+    // 更新一次位置（刚才改了速度）
+    position = b2Body_GetPosition(bodyId);
+
+    // ========= 2. 根据 Box2D 位置更新 Sprite 位置 =========
     if (sprite.has_value()) {
-        sf::Vector2f spritePosition = {position.x - boxparams.x / 2, position.y - boxparams.y / 2};
+        sf::Vector2f spritePosition = {
+            position.x - boxparams.x / 2.0f,
+            position.y - boxparams.y / 2.0f
+        };
         sprite->setPosition(spritePosition);
+
+        // ========= 3. 帧动画：循环播放 animFrames =========
+        if (!animFrames.empty()) {
+            animTimer += deltaTime;
+            if (animTimer >= animFrameTime) {
+                animTimer -= animFrameTime;
+                currentAnimFrame =
+                    (currentAnimFrame + 1) %
+                    static_cast<int>(animFrames.size());
+            }
+            sprite->setTextureRect(animFrames[currentAnimFrame]);
+        }
+
+        // ========= 4. 左右翻转：根据 faceRight 改 scale.x 的正负 =========
+        sf::Vector2f s = sprite->getScale();
+        if (s.x == 0.0f) s.x = 0.4f;        // 防止刚好是 0，给个默认
+        float sx = std::fabs(s.x);          // 固定大小，只改方向
+
+                // ====== 敌人左右翻转 ======
+        float scaleSize = 0.25f; // 敌人缩小倍数
+
+        if (faceRight) {
+            sprite->setScale(sf::Vector2f{ scaleSize, scaleSize });   // 朝右：x 正
+        } else {
+            sprite->setScale(sf::Vector2f{ -scaleSize, scaleSize });  // 朝左：x 负（镜像）
+        }
+
     }
 
-    // 
-    if (attackCooldown > 0) {
+    // ========= 5. 攻击冷却（保留原逻辑） =========
+    if (attackCooldown > 0.0f) {
         attackCooldown -= deltaTime; // 使用传入的deltaTime
+        if (attackCooldown < 0.0f) {
+            attackCooldown = 0.0f;
+        }
     }
 }
 
-void Enemy::draw() {
-    if (isAlive) {
-        // Debug
-        // printf("Drawing Enemy......\n");
-        BaseObj::draw();
+
+    void Enemy::draw() {
+        if (isAlive) {
+            BaseObj::draw();
+        }
     }
-}
 
-void Enemy::onhit(float damage) {
-    // 已经死亡就不再处理
-    if (!isAlive) return;
+    void Enemy::onhit(float damage) {
+        // 已经死亡就不再处理
+        if (!isAlive) return;
 
-    health -= damage;
-    if (health <= 0.0f) {
-        health = 0.0f;
-        onkill();
+        health -= damage;
+        if (health <= 0.0f) {
+            health = 0.0f;
+            onkill();
+        }
     }
-}
 
-void Enemy::onkill() {
-    // 敌人被击败时的处理逻辑
-    isAlive = false;
-    printf("Enemy killed!\n");
-    // TODO: 这里之后可以加死亡动画 / 销毁 Box2D Body / 从 Scene 中移除
-}
-
-
-sf::FloatRect Enemy::getHitBox() const
-{
-    if (!sprite.has_value()) {
-        return sf::FloatRect();
+    void Enemy::onkill() {
+        // 敌人被击败时的处理逻辑
+        isAlive = false;
+        printf("Enemy killed!\n");
+        b2DestroyBody(bodyId);
+        velocity = {0.0f, 0.0f};
     }
-    return sprite->getGlobalBounds();
-}
 
-sf::FloatRect Block::getHitBox() const
-{
-    if (!sprite.has_value()) {
-        return sf::FloatRect();
+    sf::FloatRect Enemy::getHitBox() const
+    {
+        if (!sprite.has_value()) {
+            return sf::FloatRect();
+        }
+        return sprite->getGlobalBounds();
     }
-    return sprite->getGlobalBounds();
-}
 
 
 

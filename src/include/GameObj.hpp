@@ -147,6 +147,12 @@ private:
     b2Vec2 patrolPointA;
     b2Vec2 patrolPointB;
     sf::Vector2f boxparams; // 用于存储方块的宽度和高度
+    // 动画相关（敌人专用）
+    std::vector<sf::IntRect> animFrames;  // 每一帧的矩形
+    int   currentAnimFrame = 0;           // 当前帧索引
+    float animTimer        = 0.0f;        // 计时器
+    float animFrameTime    = 0.15f;       // 每帧持续时间（秒）
+
 };
 
 class Projectile : public BaseObj {

@@ -104,7 +104,7 @@ private:
 
 
     // ===== 移动 / 跳跃（陆地）=====
-    float m_moveSpeed    = 300.0f;
+    float m_moveSpeed    = 320.0f;
     float m_jumpSpeed    = 400.0f;
     int   m_maxJumpCount = 2;
     int   m_jumpCount    = 0;

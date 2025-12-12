@@ -9,6 +9,7 @@
 #include <list>
 #include <variant>
 #include <SFML/Graphics.hpp>
+#include "AudioManager.hpp"
 
 class Scene
 {   
@@ -43,9 +44,28 @@ class Scene
         // 设置是否使用相机视差（true=关卡, false=菜单）
         void setUseParallaxWithCamera(bool use) { useParallaxWithCamera = use; }
 
+        // 触发玩家事件（受伤、死亡等）
+        void triggerPlayerEvent(const std::string& eventType) {
+            if (audioManagerPtr) {
+                audioManagerPtr->onPlayerEvent(eventType);
+            }
+        }
+        
+        // 触发场景事件（菜单、关卡、胜利、失败等）
+        void triggerSceneEvent(const std::string& eventType) {
+            if (audioManagerPtr) {
+                audioManagerPtr->onSceneEvent(eventType);
+            }
+        }
+        
+        // 获取音频管理器（可选）
+        std::shared_ptr<AudioManager> getAudioManager() const {
+            return audioManagerPtr;
+        }
+
     protected:
         // 场景中的游戏对象列表
-        std::vector<std::unique_ptr<BaseObj>> sceneAssets;
+        std::vector<std::shared_ptr<BaseObj>> sceneAssets;
         // Box2D物理世界生成器
         b2WorldDef worldDef;
         // Box2D物理世界
@@ -62,9 +82,13 @@ class Scene
         std::shared_ptr<BaseObj> playerPtr;
         // 子弹列表
         std::list<std::unique_ptr<Projectile>> projectiles; 
+        // 音频管理器指针
+        std::shared_ptr<AudioManager> audioManagerPtr;
+        std::shared_ptr<AudioManager> savedAudioManager; // 用于重新加载时保存音频管理器
 
         //死亡界面字体
         sf::Font deathFont;
+        bool playerWasDead = false;  // 跟踪玩家是否已经死亡
         bool deathFontLoaded = false;
         // 掉落死亡线：玩家 y 坐标超过这个值就算掉出世界
         float fallDeathY_ = 1200.0f;

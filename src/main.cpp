@@ -6,9 +6,32 @@
 #include "ResourceLoader.hpp"
 #include "Scene.hpp"
 #include "Player.hpp"
+#include <SFML/Audio.hpp>
+
 
 int main()
 {
+     // 最简单直接的音频测试
+    sf::Music music;
+    if (!music.openFromFile("audio/menu.ogg")) {
+        printf("ERROR: Cannot load audio/menu.ogg\n");
+        printf("Trying audio/menu.wav...\n");
+        if (!music.openFromFile("audio/menu.ogg")) {
+            printf("ERROR: Cannot load any audio file!\n");
+            return 1;
+        }
+    }
+    
+    music.setVolume(100.0f);
+    music.setLooping(true);
+    music.play();
+    printf("Music is now playing! Press any key in 5 seconds to continue...\n");
+    
+    sf::sleep(sf::seconds(1.0f));
+    
+    printf("Continuing with game...\n");
+    
+
     // 创建显示窗口、事件系统和游戏输入读取器（使用智能指针）
     auto display   = std::make_shared<Display>();
     auto eventSys  = std::make_shared<EventSys>();

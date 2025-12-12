@@ -3,7 +3,7 @@
 #include <functional>
 #include <queue>
 #include <iostream>
-// #include <vector>
+// #include <vector>5
 // #include <memory>
 
 class EventSys
@@ -12,7 +12,7 @@ class EventSys
         using EventFunc = std::function<void()>;
         enum class ImmEventPriority
         {
-            // 枚举事件类型与其对应优先级
+            // 枚举事件类型与其对应优先级5
             INPUT = 0,
             PRE_UPDATE,
             BOX2D,

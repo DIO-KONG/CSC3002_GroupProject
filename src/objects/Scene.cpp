@@ -1,6 +1,7 @@
-#include "Scene.hpp"
+#include "../include/Scene.hpp"
 #include "Player.hpp"
 #include <SFML/Graphics/Rect.hpp>
+#include "AudioManager.hpp"
 
 static bool rectsIntersect(const sf::FloatRect& a, const sf::FloatRect& b)
 {
@@ -29,11 +30,35 @@ void Scene::init(std::string sceneConfigPath,
     // Debug
     printf("----------------------Initializing Scene------------------------\n");
     levelCompleted_ = false;
+
+    // 1. 添加这行初始化玩家死亡状态
+    playerWasDead = false;
+
     // 初始化EventSys和RenderWindow指针
     eventSysPtr = eventSys;
     windowPtr = window;
     inputPtr = input;
     this->configPath = sceneConfigPath;
+
+    // 2. ========== 创建并初始化AudioManager ==========
+    // 在加载其他内容之前先创建音频管理器
+    audioManagerPtr = std::make_shared<AudioManager>();
+    audioManagerPtr->setPtrs(eventSys, window, input);
+    audioManagerPtr->initialize();
+    
+    // 保存音频管理器指针，用于重新加载
+    savedAudioManager = audioManagerPtr;
+    
+    printf("[Scene] AudioManager created and initialized.\n");
+    
+    // 根据场景类型播放相应音乐
+    if (sceneConfigPath.find("menu") != std::string::npos) {
+        printf("[Scene] Menu scene detected, playing menu music\n");
+        audioManagerPtr->playMusic("menu");
+    } else if (sceneConfigPath.find("level1") != std::string::npos) {
+        printf("[Scene] Level1 scene detected, playing level music\n");
+        audioManagerPtr->playMusic("level1");
+    }
 
     // 加载场景配置
     ResourceLoader loader(sceneConfigPath);
@@ -81,6 +106,18 @@ void Scene::init(std::string sceneConfigPath,
     }
     // Debug
     printf("Scene initialized with %zu objects.\n", sceneAssets.size());
+
+    // 3. 添加以下代码：根据场景类型触发对应音频
+    if (audioManagerPtr) {
+        // 判断场景类型（使用配置文件路径或名称）
+        if (sceneConfigPath.find("menu") != std::string::npos) {
+            printf("[Scene] Menu scene detected, playing menu music\n");
+            audioManagerPtr->onSceneEvent("scene_menu");
+        } else if (sceneConfigPath.find("level1") != std::string::npos) {
+            printf("[Scene] Level1 scene detected, playing level music\n");
+            audioManagerPtr->onSceneEvent("scene_level1");
+        }
+    }
     // 设置玩家子弹生成回调
     printf("[Scene::init] Checking playerPtr: %s\n", playerPtr ? "EXISTS" : "NULL");
     if (playerPtr) {
@@ -148,6 +185,19 @@ void Scene::reload() {
         for (int i = 0; i < objCount; ++i) {
             // 遍历每个对象并添加到场景
             addObject(key, loader.getAllObjResources(i, key));
+        }
+    }
+
+    // 如果之前有音频管理器，重新设置它
+    if (savedAudioManager) {
+        // 重新设置指针
+        audioManagerPtr = savedAudioManager;
+        
+        // 根据场景类型重新播放音乐
+        if (configPath.find("menu") != std::string::npos) {
+            audioManagerPtr->onSceneEvent("scene_menu");
+        } else if (configPath.find("level1") != std::string::npos) {
+            audioManagerPtr->onSceneEvent("scene_level1");
         }
     }
 }
@@ -293,6 +343,31 @@ void Scene::update(const float deltaTime, const int subStepCount) {
     // ===== 玩家与敌人 / Trap / Block 碰撞 & 环境效果 =====
     if (playerPtr) {
         auto player = std::dynamic_pointer_cast<Player>(playerPtr);
+
+         //========玩家死亡检测========
+        if (player && !player->isAliveFlag() && !playerWasDead) {
+            // 玩家刚刚死亡
+            printf("[Scene] Player just died, triggering audio events\n");
+            
+            // 1. 先触发死亡事件（停止当前音乐）
+            triggerPlayerEvent("player_death");
+            
+            // 2. 延迟播放游戏结束音乐
+            if (audioManagerPtr) {
+                auto delayFunc = [this]() {
+                    if (audioManagerPtr) {
+                        printf("[Scene] Now playing gameover music\n");
+                        audioManagerPtr->onSceneEvent("scene_gameover");
+                    }
+                };
+                // 延迟 2 秒播放游戏结束音乐
+                regTimedEvent(sf::seconds(2.0f), delayFunc);
+            }
+            
+            playerWasDead = true;
+        } else if (player && player->isAliveFlag()) {
+            playerWasDead = false;
+        }
         if (player && player->isAliveFlag()) {
             sf::FloatRect playerBounds = player->getBounds();
 
@@ -301,7 +376,23 @@ void Scene::update(const float deltaTime, const int subStepCount) {
             if (playerTopY > fallDeathY_) {
                 printf("[Scene] Player fell below death line (y = %.1f), killing player.\n",
                     playerTopY);
+
+                 // 先触发音频事件
+                if (audioManagerPtr) {
+                    // 触发死亡事件（停止当前音乐）
+                    audioManagerPtr->onPlayerEvent("player_death");
+                    
+                    // 延迟播放游戏结束音乐
+                    auto delayFunc = [this]() {
+                        if (audioManagerPtr) {
+                            audioManagerPtr->onSceneEvent("scene_gameover");
+                        }
+                    };
+                    regTimedEvent(sf::seconds(1.5f), delayFunc);
+                }
+                
                 // 给一个很大的伤害，复用原有死亡逻辑
+
                 player->takeDamage(9999.0f);
             }
 
@@ -320,6 +411,9 @@ void Scene::update(const float deltaTime, const int subStepCount) {
                     printf("[Scene] Player touched enemy, damage = %.2f\n", dmg);
                     player->takeDamage(dmg);
                     // 一帧只吃一个敌人的伤害
+                    // 触发受伤音频效果
+                    triggerPlayerEvent("player_hurt");
+
                     break;
                 }
             }
@@ -350,6 +444,8 @@ void Scene::update(const float deltaTime, const int subStepCount) {
                 if (!levelCompleted_) {
                     levelCompleted_ = true;
                     printf("[Scene] GOAL reached! Level completed.\n");
+                    // 触发胜利音频
+                    triggerSceneEvent("scene_victory");
                 }
             }
             //普通 Trap：只扣一次血
@@ -638,10 +734,31 @@ void Scene::addObject(const std::string type, const ResourceLoader::ResourceDict
         newTrap->initialize(objConfig);
         // 添加到场景对象列表
         sceneAssets.push_back(std::move(newTrap));
-    } else {
+        
+    } 
+    else if (type == "AudioManager") {
+        // Debug
+        printf("Adding AudioManager to Scene.\n");
+        // 创建AudioManager对象
+        auto audioManager = std::make_shared<AudioManager>();
+        // 设置AudioManager的核心指针
+        audioManager->setPtrs(eventSysPtr, windowPtr, inputPtr);
+        
+        // 初始化AudioManager对象
+        audioManager->initialize();
+        
+        // 保存音频管理器指针供场景使用
+        audioManagerPtr = audioManager;
+        
+        // 添加到场景对象列表
+        sceneAssets.push_back(audioManager);
+        printf("AudioManager added to scene.\n");
+    } 
+    else {
         // 其他类型对象的创建逻辑
         printf("Unknown object type: %s. Object not added.\n", type.c_str());
     }
+
 }
 
 void Scene::setPlayerPtr(const std::shared_ptr<BaseObj>& player) {

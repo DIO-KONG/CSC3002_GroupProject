@@ -1,0 +1,11 @@
+{
+    "master_volume": 80.0,
+    "music_volume": 100.0,
+    "default_music": "menu",
+    "music": {
+        "menu": "assets/audio/menu.ogg",
+        "level1": "assets/audio/level1.ogg",
+        "victory": "assets/audio/victory.ogg",
+        "gameover": "assets/audio/gameover.ogg"
+    }
+}

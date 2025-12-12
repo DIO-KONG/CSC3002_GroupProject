@@ -1,6 +1,6 @@
 {
     "name": "Menu",
-    "music": "assets/audio/memu_theme.mp3",
+    "music": "assets/audio/memu.ogg",
     "objKeys": ["ParallaxLayer", "GraphicObj"],
     "gravityX": 0.0,
     "gravityY": 0.0,
